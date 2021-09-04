@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij' version '0.7.3'
+}
+
+group 'com.github'
+version '0.1-SNAPSHOT'
+
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+}
+
+intellij {
+    version = '2020.1'
+    plugins = ['com.intellij.java']
+}
+
+patchPluginXml {
+    changeNotes = """
+      Add change notes here.<br/>
+      <em>most HTML tags may be used</em>"""
+}
