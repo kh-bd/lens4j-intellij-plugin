@@ -1,0 +1,23 @@
+<idea-plugin>
+    <id>com.github.lens4j-intellij-plugin</id>
+    <name>Lens4j</name>
+    <vendor email="khadanovich.sergey@gmail.com">Khadanovich Sergei, Bodyak Alex</vendor>
+
+    <description>Plugin to add more convenient support for lens4j library</description>
+
+    <depends>com.intellij.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <localInspection
+                language="JAVA"
+                enabledByDefault="true"
+                level="ERROR"
+                groupBundle="dev.khbd.lens4j.intellij.messages.Lens4jBundle"
+                groupKey="inspections"
+                bundle="dev.khbd.lens4j.intellij.messages.Lens4jBundle"
+                key="inspection.gen.lenses.on.interface"
+                shortName="GenLensesOnInterfaceInspection"
+                implementationClass="dev.khbd.lens4j.intellij.inspection.GenLensesOnInterfaceInspection"/>
+    </extensions>
+
+</idea-plugin>
