@@ -47,7 +47,7 @@ public class GenLensesOnInnerClassInspection extends AbstractBaseJavaLocalInspec
                 genLens,
                 Lens4jBundle.getMessage(PROBLEM_KEY),
                 new RemoveGenLensLocalQuickFix(FIX_KEY),
-                ProblemHighlightType.ERROR,
+                ProblemHighlightType.GENERIC_ERROR,
                 isOnTheFly
         );
     }
