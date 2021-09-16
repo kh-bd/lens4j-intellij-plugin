@@ -8,19 +8,16 @@ import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiAnnotationMemberValue;
-import com.intellij.psi.PsiArrayInitializerMemberValue;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiLiteralValue;
-import com.intellij.psi.PsiModifier;
-import dev.khbd.lens4j.core.annotations.GenLenses;
 import dev.khbd.lens4j.intellij.Lens4jBundle;
 import dev.khbd.lens4j.intellij.common.Path;
 import dev.khbd.lens4j.intellij.common.PathParser;
 import dev.khbd.lens4j.intellij.common.PathPart;
+import dev.khbd.lens4j.intellij.common.PsiUtil;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -32,32 +29,14 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
 
     @Override
     public ProblemDescriptor[] checkClass(PsiClass psiClass, InspectionManager manager, boolean isOnTheFly) {
-        PsiAnnotation genLens = psiClass.getAnnotation(GenLenses.class.getName());
-        if (Objects.isNull(genLens) || psiClass.isInterface() || isInnerClass(psiClass)) {
+        if (psiClass.isInterface() || PsiUtil.isNested(psiClass)) {
             return ProblemDescriptor.EMPTY_ARRAY;
         }
 
-        List<PsiAnnotation> lenses = findLensAnnotations(genLens);
+        List<PsiAnnotation> lenses = PsiUtil.findLensAnnotations(psiClass);
+
         return checkLensAnnotations(psiClass, lenses, manager, isOnTheFly)
                 .toArray(ProblemDescriptor[]::new);
-    }
-
-    private List<PsiAnnotation> findLensAnnotations(PsiAnnotation genLens) {
-        PsiAnnotationMemberValue lenses = genLens.findAttributeValue("lenses");
-
-        if (lenses instanceof PsiAnnotation) {
-            return List.of((PsiAnnotation) lenses);
-        }
-
-        if (lenses instanceof PsiArrayInitializerMemberValue) {
-            PsiArrayInitializerMemberValue initializerMemberValue = (PsiArrayInitializerMemberValue) lenses;
-            PsiAnnotationMemberValue[] initializers = initializerMemberValue.getInitializers();
-            return Arrays.stream(initializers)
-                    .map(PsiAnnotation.class::cast)
-                    .collect(Collectors.toList());
-        }
-
-        return List.of();
     }
 
     private List<ProblemDescriptor> checkLensAnnotations(PsiClass psiClass,
@@ -104,7 +83,7 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
         Path path = new PathParser().parse(pathStr);
 
         for (PathPart part : path) {
-            PsiField property = findProperty(currentPsiClass, part.getProperty());
+            PsiField property = PsiUtil.findNonStaticField(currentPsiClass, part.getProperty());
             if (Objects.isNull(property)) {
                 ProblemDescriptor problem = propertyNotFoundProblem(literalValue, manager, isOnTheFly, currentPsiClass, part);
                 return List.of(problem);
@@ -151,19 +130,5 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
                 ProblemHighlightType.GENERIC_ERROR,
                 isOnTheFly
         );
-    }
-
-    private PsiField findProperty(PsiClass psiClass, String propertyName) {
-        PsiField[] fields = psiClass.getAllFields();
-        return Arrays.stream(fields)
-                .filter(field -> !field.getModifierList().hasExplicitModifier(PsiModifier.STATIC))
-                .filter(field -> field.getName().equals(propertyName))
-                .findFirst()
-                .orElse(null);
-    }
-
-    private boolean isInnerClass(PsiClass psiClass) {
-        PsiClass containingClass = psiClass.getContainingClass();
-        return Objects.nonNull(containingClass);
     }
 }
