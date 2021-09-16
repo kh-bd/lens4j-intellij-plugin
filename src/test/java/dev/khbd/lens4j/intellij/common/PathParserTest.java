@@ -1,4 +1,4 @@
-package dev.khbd.lens4j.intellij.inspection;
+package dev.khbd.lens4j.intellij.common;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

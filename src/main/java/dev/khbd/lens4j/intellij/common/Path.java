@@ -1,4 +1,4 @@
-package dev.khbd.lens4j.intellij.inspection;
+package dev.khbd.lens4j.intellij.common;
 
 import lombok.EqualsAndHashCode;
 
@@ -10,11 +10,11 @@ import java.util.List;
  * @author Sergei_Khadanovich
  */
 @EqualsAndHashCode
-class Path implements Iterable<PathPart> {
+public class Path implements Iterable<PathPart> {
 
     final List<PathPart> parts = new ArrayList<>();
 
-    Path addPart(PathPart part) {
+    public Path addPart(PathPart part) {
         parts.add(part);
         return this;
     }

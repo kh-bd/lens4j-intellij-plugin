@@ -1,4 +1,4 @@
-package dev.khbd.lens4j.intellij.inspection;
+package dev.khbd.lens4j.intellij.common;
 
 import lombok.Value;
 
@@ -6,7 +6,7 @@ import lombok.Value;
  * @author Sergei_Khadanovich
  */
 @Value
-class PathPart {
+public class PathPart {
     String property;
     int start;
     int end;

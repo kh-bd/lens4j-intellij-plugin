@@ -1,9 +1,9 @@
-package dev.khbd.lens4j.intellij.inspection;
+package dev.khbd.lens4j.intellij.common;
 
 /**
  * @author Sergei_Khadanovich
  */
-class PathParser {
+public class PathParser {
 
     /**
      * Parse string literal into chunks.
@@ -11,7 +11,7 @@ class PathParser {
      * @param path path
      * @return parsed path
      */
-    Path parse(String path) {
+    public Path parse(String path) {
         return parse(0, path, new Path());
     }
 

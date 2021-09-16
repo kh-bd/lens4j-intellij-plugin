@@ -16,6 +16,9 @@ import com.intellij.psi.PsiLiteralValue;
 import com.intellij.psi.PsiModifier;
 import dev.khbd.lens4j.core.annotations.GenLenses;
 import dev.khbd.lens4j.intellij.Lens4jBundle;
+import dev.khbd.lens4j.intellij.common.Path;
+import dev.khbd.lens4j.intellij.common.PathParser;
+import dev.khbd.lens4j.intellij.common.PathPart;
 
 import java.util.Arrays;
 import java.util.List;
