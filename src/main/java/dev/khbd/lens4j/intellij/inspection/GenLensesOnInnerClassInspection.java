@@ -21,20 +21,18 @@ public class GenLensesOnInnerClassInspection extends AbstractBaseJavaLocalInspec
     private static final String PROBLEM_KEY = "inspection.gen.lenses.on.inner.class";
     private static final String FIX_KEY = "inspection.gen.lenses.on.inner.class.remove.annotation";
 
-    private static final ProblemDescriptor[] NO_DESCRIPTORS = new ProblemDescriptor[0];
-
     @Override
     public ProblemDescriptor[] checkClass(PsiClass psiClass, InspectionManager manager, boolean isOnTheFly) {
         PsiAnnotation genLens = psiClass.getAnnotation(GenLenses.class.getName());
         if (Objects.isNull(genLens)) {
-            return NO_DESCRIPTORS;
+            return ProblemDescriptor.EMPTY_ARRAY;
         }
 
         if (isInnerClass(psiClass)) {
             return new ProblemDescriptor[]{genLensOnInnerClass(genLens, manager, isOnTheFly)};
         }
 
-        return NO_DESCRIPTORS;
+        return ProblemDescriptor.EMPTY_ARRAY;
     }
 
     private boolean isInnerClass(PsiClass psiClass) {

@@ -21,20 +21,18 @@ public class GenLensesOnInterfaceInspection extends AbstractBaseJavaLocalInspect
     private static final String PROBLEM_KEY = "inspection.gen.lenses.on.interface";
     private static final String FIX_KEY = "inspection.gen.lenses.on.interface.remove.annotation";
 
-    private static final ProblemDescriptor[] NO_DESCRIPTORS = new ProblemDescriptor[0];
-
     @Override
     public ProblemDescriptor[] checkClass(PsiClass psiClass, InspectionManager manager, boolean isOnTheFly) {
         PsiAnnotation genLens = psiClass.getAnnotation(GenLenses.class.getName());
         if (Objects.isNull(genLens)) {
-            return NO_DESCRIPTORS;
+            return ProblemDescriptor.EMPTY_ARRAY;
         }
 
         if (psiClass.isInterface()) {
             return new ProblemDescriptor[]{genLensOnInterface(genLens, manager, isOnTheFly)};
         }
 
-        return NO_DESCRIPTORS;
+        return ProblemDescriptor.EMPTY_ARRAY;
     }
 
     private ProblemDescriptor genLensOnInterface(PsiAnnotation genLens,

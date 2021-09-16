@@ -9,19 +9,18 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import dev.khbd.lens4j.intellij.Lens4jBundle;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Quick fix to remove gen lens annotation.
  *
  * @author Sergei_Khadanovich
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class RemoveGenLensLocalQuickFix implements LocalQuickFix {
 
     private final String key;
-
-    RemoveGenLensLocalQuickFix(String key) {
-        this.key = key;
-    }
 
     @Override
     public String getFamilyName() {
