@@ -1,0 +1,34 @@
+<html>
+<body>
+<p>
+    This inspection reports when the <code>@Lens#path</code> is not valid.
+    <br/>
+    <code>@Lens#path</code> should not be blank and all properties should be found
+    in the corresponding classes
+</p>
+<p>
+<pre><code>
+    // incorrect
+    @GenLenses(lenses = @Lens(path = ""))
+    class Payment {
+        String name;
+    }
+
+    // incorrect
+    @GenLenses(lenses = @Lens(path = "wrongName"))
+    class Payment {
+        String name;
+    }
+</code></pre>
+</p>
+<p>
+<pre><code>
+    // correct
+    @GenLenses(lenses = @Lens(path = "name"))
+    class Payment {
+        String name;
+    }
+</code></pre>
+</p>
+</body>
+</html>

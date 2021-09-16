@@ -28,6 +28,16 @@
                 key="inspection.gen.lenses.on.inner.class"
                 shortName="GenLensesOnInnerClassInspection"
                 implementationClass="dev.khbd.lens4j.intellij.inspection.GenLensesOnInnerClassInspection"/>
+        <localInspection
+                language="JAVA"
+                enabledByDefault="true"
+                level="ERROR"
+                groupBundle="dev.khbd.lens4j.intellij.messages.Lens4jBundle"
+                groupKey="inspections"
+                bundle="dev.khbd.lens4j.intellij.messages.Lens4jBundle"
+                key="inspection.gen.lenses.lens.path.validity"
+                shortName="LensPathValidityInspection"
+                implementationClass="dev.khbd.lens4j.intellij.inspection.LensPathValidityInspection"/>
     </extensions>
 
 </idea-plugin>
