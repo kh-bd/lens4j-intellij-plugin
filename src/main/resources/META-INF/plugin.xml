@@ -18,6 +18,16 @@
                 key="inspection.gen.lenses.on.interface"
                 shortName="GenLensesOnInterfaceInspection"
                 implementationClass="dev.khbd.lens4j.intellij.inspection.GenLensesOnInterfaceInspection"/>
+        <localInspection
+                language="JAVA"
+                enabledByDefault="true"
+                level="ERROR"
+                groupBundle="dev.khbd.lens4j.intellij.messages.Lens4jBundle"
+                groupKey="inspections"
+                bundle="dev.khbd.lens4j.intellij.messages.Lens4jBundle"
+                key="inspection.gen.lenses.on.inner.class"
+                shortName="GenLensesOnInnerClassInspection"
+                implementationClass="dev.khbd.lens4j.intellij.inspection.GenLensesOnInnerClassInspection"/>
     </extensions>
 
 </idea-plugin>

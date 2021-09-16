@@ -12,14 +12,14 @@ import dev.khbd.lens4j.intellij.Lens4jBundle;
 import java.util.Objects;
 
 /**
- * Inspection to verify {@link GenLenses} annotation is not present on interfaces.
+ * Inspection to verify {@link GenLenses} annotation is not present on inner classes.
  *
  * @author Sergei_Khadanovich
  */
-public class GenLensesOnInterfaceInspection extends AbstractBaseJavaLocalInspectionTool {
+public class GenLensesOnInnerClassInspection extends AbstractBaseJavaLocalInspectionTool {
 
-    private static final String PROBLEM_KEY = "inspection.gen.lenses.on.interface";
-    private static final String FIX_KEY = "inspection.gen.lenses.on.interface.remove.annotation";
+    private static final String PROBLEM_KEY = "inspection.gen.lenses.on.inner.class";
+    private static final String FIX_KEY = "inspection.gen.lenses.on.inner.class.remove.annotation";
 
     private static final ProblemDescriptor[] NO_DESCRIPTORS = new ProblemDescriptor[0];
 
@@ -30,16 +30,21 @@ public class GenLensesOnInterfaceInspection extends AbstractBaseJavaLocalInspect
             return NO_DESCRIPTORS;
         }
 
-        if (psiClass.isInterface()) {
-            return new ProblemDescriptor[]{genLensOnInterface(genLens, manager, isOnTheFly)};
+        if (isInnerClass(psiClass)) {
+            return new ProblemDescriptor[]{genLensOnInnerClass(genLens, manager, isOnTheFly)};
         }
 
         return NO_DESCRIPTORS;
     }
 
-    private ProblemDescriptor genLensOnInterface(PsiAnnotation genLens,
-                                                 InspectionManager manager,
-                                                 boolean isOnTheFly) {
+    private boolean isInnerClass(PsiClass psiClass) {
+        PsiClass containingClass = psiClass.getContainingClass();
+        return Objects.nonNull(containingClass);
+    }
+
+    private ProblemDescriptor genLensOnInnerClass(PsiAnnotation genLens,
+                                                  InspectionManager manager,
+                                                  boolean isOnTheFly) {
         return manager.createProblemDescriptor(
                 genLens,
                 Lens4jBundle.getMessage(PROBLEM_KEY),
@@ -48,5 +53,4 @@ public class GenLensesOnInterfaceInspection extends AbstractBaseJavaLocalInspect
                 isOnTheFly
         );
     }
-
 }
