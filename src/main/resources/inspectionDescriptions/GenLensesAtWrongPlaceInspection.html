@@ -1,12 +1,19 @@
 <html>
 <body>
 <p>
-    This inspection reports when the <code>@GenLenses</code> annotation is used on inner classes.
+    This inspection reports when the <code>@GenLenses</code> annotation is used at wrong place.
     <br/>
-    <code>@GenLenses</code> annotation can be used only with top-level classes.
+    <code>@GenLenses</code> annotation can be used only with top-level classes. Interfaces
+    and inner classes are not allowed.
 </p>
 <p>
 <pre><code>
+    // incorrect
+    @GenLenses(lenses = @Lens(path = "name"))
+    interface Fly {
+        String getName();
+    }
+
     // incorrect
     class Outer {
         @GenLenses(lenses = @Lens(path = "name"))
@@ -22,10 +29,8 @@
 <pre><code>
     // correct
     @GenLenses(lenses = @Lens(path = "name"))
-    class Outer {
+    class Bird {
         String name;
-
-        // accessors
     }
 </code></pre>
 </p>
