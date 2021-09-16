@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id "io.freefair.lombok" version "6.2.0"
     id 'org.jetbrains.intellij' version '0.7.3'
 }
 
@@ -16,12 +17,17 @@ repositories {
 dependencies {
     implementation 'dev.khbd.lens4j:lens4j-core:0.1.2'
 
-    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'org.testng', name: 'testng', version: '6.13.1'
+    testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.9.0'
 }
 
 intellij {
     version = '2020.1'
     plugins = ['com.intellij.java']
+}
+
+test {
+    useTestNG()
 }
 
 patchPluginXml {
