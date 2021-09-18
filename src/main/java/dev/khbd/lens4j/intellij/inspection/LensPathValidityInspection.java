@@ -8,18 +8,20 @@ import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiAnnotationMemberValue;
+import com.intellij.psi.PsiArrayInitializerMemberValue;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiClassType;
-import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiLiteralValue;
+import dev.khbd.lens4j.core.annotations.GenLenses;
 import dev.khbd.lens4j.intellij.Lens4jBundle;
-import dev.khbd.lens4j.intellij.common.Path;
+import dev.khbd.lens4j.intellij.common.LensPsiUtil;
 import dev.khbd.lens4j.intellij.common.PathParser;
-import dev.khbd.lens4j.intellij.common.PathPart;
-import dev.khbd.lens4j.intellij.common.PsiUtil;
+import dev.khbd.lens4j.intellij.common.PsiPath;
+import dev.khbd.lens4j.intellij.common.PsiPathElement;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -29,14 +31,41 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
 
     @Override
     public ProblemDescriptor[] checkClass(PsiClass psiClass, InspectionManager manager, boolean isOnTheFly) {
-        if (psiClass.isInterface() || PsiUtil.isNested(psiClass)) {
+        if (psiClass.isInterface() || LensPsiUtil.isNested(psiClass)) {
             return ProblemDescriptor.EMPTY_ARRAY;
         }
 
-        List<PsiAnnotation> lenses = PsiUtil.findLensAnnotations(psiClass);
+        List<PsiAnnotation> lenses = findLensAnnotations(psiClass);
 
         return checkLensAnnotations(psiClass, lenses, manager, isOnTheFly)
                 .toArray(ProblemDescriptor[]::new);
+    }
+
+    private List<PsiAnnotation> findLensAnnotations(PsiClass psiClass) {
+        PsiAnnotation genLens = psiClass.getAnnotation(GenLenses.class.getName());
+        if (Objects.isNull(genLens)) {
+            return List.of();
+        }
+
+        return findLensAnnotations(genLens);
+    }
+
+    private List<PsiAnnotation> findLensAnnotations(PsiAnnotation genLens) {
+        PsiAnnotationMemberValue lenses = genLens.findAttributeValue("lenses");
+
+        if (lenses instanceof PsiAnnotation) {
+            return List.of((PsiAnnotation) lenses);
+        }
+
+        if (lenses instanceof PsiArrayInitializerMemberValue) {
+            PsiArrayInitializerMemberValue initializerMemberValue = (PsiArrayInitializerMemberValue) lenses;
+            PsiAnnotationMemberValue[] initializers = initializerMemberValue.getInitializers();
+            return Arrays.stream(initializers)
+                    .map(PsiAnnotation.class::cast)
+                    .collect(Collectors.toList());
+        }
+
+        return List.of();
     }
 
     private List<ProblemDescriptor> checkLensAnnotations(PsiClass psiClass,
@@ -59,60 +88,46 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
         }
 
         PsiLiteralValue literalValue = (PsiLiteralValue) pathMember;
-        Object value = literalValue.getValue();
-        if (Objects.isNull(value)) {
-            return List.of();
-        }
 
-        String pathStr = (String) value;
-
-        if (pathStr.isBlank()) {
-            return List.of(pathIsBlankProblem(manager, literalValue, isOnTheFly));
-        }
-
-        return checkLensPath(pathStr, psiClass, literalValue, manager, isOnTheFly);
+        return LensPsiUtil.getStringValue(literalValue)
+                .map(checkLensPathF(manager, psiClass, literalValue, isOnTheFly))
+                .orElseGet(List::of);
     }
 
-    private List<ProblemDescriptor> checkLensPath(String pathStr,
-                                                  PsiClass psiClass,
-                                                  PsiLiteralValue literalValue,
-                                                  InspectionManager manager,
-                                                  boolean isOnTheFly) {
-        PsiClass currentPsiClass = psiClass;
-
-        Path path = new PathParser().parse(pathStr);
-
-        for (PathPart part : path) {
-            PsiField property = PsiUtil.findNonStaticField(currentPsiClass, part.getProperty());
-            if (Objects.isNull(property)) {
-                ProblemDescriptor problem = propertyNotFoundProblem(literalValue, manager, isOnTheFly, currentPsiClass, part);
-                return List.of(problem);
+    private Function<String, List<ProblemDescriptor>> checkLensPathF(InspectionManager manager,
+                                                                     PsiClass psiClass,
+                                                                     PsiLiteralValue literalValue,
+                                                                     boolean isOnTheFly) {
+        return pathStr -> {
+            if (pathStr.isBlank()) {
+                return List.of(pathIsBlankProblem(manager, literalValue, isOnTheFly));
             }
+            return checkNotBlankPath(manager, psiClass, literalValue, pathStr, isOnTheFly);
+        };
+    }
 
-            PsiClassType classType = (PsiClassType) property.getType();
-            PsiClass resolvedPsiClass = classType.resolve();
+    private List<ProblemDescriptor> checkNotBlankPath(InspectionManager manager,
+                                                      PsiClass psiClass,
+                                                      PsiLiteralValue literalValue,
+                                                      String pathStr,
+                                                      boolean isOnTheFly) {
+        PsiPath psiPath = new PathParser().psiParse(pathStr, psiClass);
 
-            if (Objects.isNull(resolvedPsiClass)) {
-                break;
-            }
-
-            currentPsiClass = resolvedPsiClass;
-        }
-
-        return List.of();
+        return psiPath.findFirstElementWithUnResolvedField()
+                .map(e -> List.of(propertyNotFoundProblem(literalValue, e, manager, isOnTheFly)))
+                .orElseGet(List::of);
     }
 
     private ProblemDescriptor propertyNotFoundProblem(PsiLiteralValue literalValue,
+                                                      PsiPathElement element,
                                                       InspectionManager manager,
-                                                      boolean isOnTheFly,
-                                                      PsiClass psiClass,
-                                                      PathPart part) {
-        TextRange range = new TextRange(part.getStart() + 1, part.getEnd() + 2);
+                                                      boolean isOnTheFly) {
+        TextRange range = new TextRange(element.getStart() + 1, element.getEnd() + 2);
         return manager.createProblemDescriptor(
                 literalValue,
                 range,
                 Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.property.not.exist",
-                        part.getProperty(), psiClass.getName()
+                        element.getProperty(), element.getPsiClass().getName()
                 ),
                 ProblemHighlightType.GENERIC_ERROR,
                 isOnTheFly,
