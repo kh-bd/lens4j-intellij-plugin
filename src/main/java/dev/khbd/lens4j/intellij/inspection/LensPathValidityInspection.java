@@ -21,6 +21,7 @@ import dev.khbd.lens4j.intellij.common.PsiPathElement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -90,33 +91,32 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
         PsiLiteralValue literalValue = (PsiLiteralValue) pathMember;
 
         return LensPsiUtil.getStringValue(literalValue)
-                .map(checkLensPathF(manager, psiClass, literalValue, isOnTheFly))
-                .orElseGet(List::of);
+                .flatMap(checkLensPathF(manager, psiClass, literalValue, isOnTheFly))
+                .stream()
+                .collect(Collectors.toList());
     }
 
-    private Function<String, List<ProblemDescriptor>> checkLensPathF(InspectionManager manager,
-                                                                     PsiClass psiClass,
-                                                                     PsiLiteralValue literalValue,
-                                                                     boolean isOnTheFly) {
+    private Function<String, Optional<ProblemDescriptor>> checkLensPathF(InspectionManager manager,
+                                                                         PsiClass psiClass,
+                                                                         PsiLiteralValue literalValue,
+                                                                         boolean isOnTheFly) {
         return pathStr -> {
             if (pathStr.isBlank()) {
-                return List.of(pathIsBlankProblem(manager, literalValue, isOnTheFly));
+                return Optional.of(pathIsBlankProblem(manager, literalValue, isOnTheFly));
             }
             return checkNotBlankPath(manager, psiClass, literalValue, pathStr, isOnTheFly);
         };
     }
 
-    // todo: change signature to Optional<ProblemDescriptor>
-    private List<ProblemDescriptor> checkNotBlankPath(InspectionManager manager,
-                                                      PsiClass psiClass,
-                                                      PsiLiteralValue literalValue,
-                                                      String pathStr,
-                                                      boolean isOnTheFly) {
+    private Optional<ProblemDescriptor> checkNotBlankPath(InspectionManager manager,
+                                                          PsiClass psiClass,
+                                                          PsiLiteralValue literalValue,
+                                                          String pathStr,
+                                                          boolean isOnTheFly) {
         PsiPath psiPath = new PathParser().psiParse(pathStr, psiClass);
 
         return psiPath.findFirstElementWithUnResolvedField()
-                .map(e -> List.of(propertyNotFoundProblem(literalValue, e, manager, isOnTheFly)))
-                .orElseGet(List::of);
+                .map(e -> propertyNotFoundProblem(literalValue, e, manager, isOnTheFly));
     }
 
     private ProblemDescriptor propertyNotFoundProblem(PsiLiteralValue literalValue,
