@@ -30,6 +30,11 @@
                 key="inspection.gen.lenses.lens.path.validity"
                 shortName="LensPathValidityInspection"
                 implementationClass="dev.khbd.lens4j.intellij.inspection.LensPathValidityInspection"/>
+
+        <psi.referenceContributor
+                language="JAVA"
+                implementation="dev.khbd.lens4j.intellij.reference.LensPathPsiReferenceContributor"/>
+
     </extensions>
 
 </idea-plugin>

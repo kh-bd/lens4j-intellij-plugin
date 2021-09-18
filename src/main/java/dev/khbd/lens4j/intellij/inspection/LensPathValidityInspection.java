@@ -106,6 +106,7 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
         };
     }
 
+    // todo: change signature to Optional<ProblemDescriptor>
     private List<ProblemDescriptor> checkNotBlankPath(InspectionManager manager,
                                                       PsiClass psiClass,
                                                       PsiLiteralValue literalValue,
