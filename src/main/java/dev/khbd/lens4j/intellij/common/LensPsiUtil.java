@@ -1,9 +1,11 @@
 package dev.khbd.lens4j.intellij.common;
 
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiLiteralValue;
 import com.intellij.psi.PsiModifier;
+import com.intellij.util.containers.JBIterable;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -58,5 +60,19 @@ public final class LensPsiUtil {
                     }
                     return Optional.of((String) value);
                 });
+    }
+
+    /**
+     * Find first enclosing class for specified element.
+     *
+     * @param element element
+     * @return first enclosing class or empty
+     */
+    public static Optional<PsiClass> findFirstEnclosingClass(PsiElement element) {
+        PsiClass firstClass =
+                JBIterable.generate(element, PsiElement::getParent)
+                        .filter(PsiClass.class)
+                        .first();
+        return Optional.ofNullable(firstClass);
     }
 }

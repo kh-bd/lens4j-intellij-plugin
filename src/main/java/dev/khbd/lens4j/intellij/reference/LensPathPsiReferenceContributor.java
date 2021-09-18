@@ -15,7 +15,6 @@ import dev.khbd.lens4j.intellij.common.LensPsiUtil;
 import dev.khbd.lens4j.intellij.common.PathParser;
 import dev.khbd.lens4j.intellij.common.PsiPath;
 
-import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -40,17 +39,14 @@ public class LensPathPsiReferenceContributor extends PsiReferenceContributor {
         @Override
         public PsiReference[] getReferencesByElement(PsiElement element,
                                                      ProcessingContext context) {
-            // TODO fix it
-            PsiClass psiClass = com.intellij.psi.util.PsiUtil.getTopLevelClass(element);
 
-            if (Objects.isNull(psiClass) || psiClass.isInterface()) {
-                return PsiReference.EMPTY_ARRAY;
-            }
-
-            return LensPsiUtil.getStringValue((PsiLiteralValue) element)
-                    .filter(path -> !path.isBlank())
-                    .map(getReferencesByPathF(psiClass, element))
-                    .orElse(PsiReference.EMPTY_ARRAY);
+            return LensPsiUtil.findFirstEnclosingClass(element)
+                    .filter(psiClass -> !psiClass.isInterface())
+                    .flatMap(psiClass ->
+                            LensPsiUtil.getStringValue((PsiLiteralValue) element)
+                                    .filter(path -> !path.isBlank())
+                                    .map(getReferencesByPathF(psiClass, element))
+                    ).orElse(PsiReference.EMPTY_ARRAY);
         }
 
         private Function<String, PsiReference[]> getReferencesByPathF(PsiClass rootClass,
