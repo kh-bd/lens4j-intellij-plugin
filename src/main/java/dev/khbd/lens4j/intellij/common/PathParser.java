@@ -28,12 +28,12 @@ public class PathParser {
         int index = pathStr.indexOf('.', startFrom);
         if (index == -1) {
             // last part
-            RawPathElement element = new RawPathElement(pathStr.substring(startFrom), startFrom, pathStr.length() - 1);
-            return path.addElement(element);
+            RawPathPart part = new RawPathPart(pathStr.substring(startFrom), startFrom, pathStr.length() - 1);
+            return path.addPart(part);
         }
 
-        RawPathElement element = new RawPathElement(pathStr.substring(startFrom, index), startFrom, index - 1);
-        return rawParse(index + 1, pathStr, path.addElement(element));
+        RawPathPart part = new RawPathPart(pathStr.substring(startFrom, index), startFrom, index - 1);
+        return rawParse(index + 1, pathStr, path.addPart(part));
     }
 
     /**
@@ -43,18 +43,18 @@ public class PathParser {
      * @param rootClass root class
      * @return psi path
      */
-    public PsiPath psiParse(String path, PsiClass rootClass) {
+    public TypedPath typedParse(String path, PsiClass rootClass) {
         RawPath rawPath = rawParse(path);
 
         PsiClass currentPsiClass = rootClass;
 
-        PsiPath result = new PsiPath();
+        TypedPath result = new TypedPath();
 
-        for (RawPathElement rawElement : rawPath) {
-            PsiField field = LensPsiUtil.findNonStaticField(currentPsiClass, rawElement.getProperty());
+        for (RawPathPart rawPart : rawPath) {
+            PsiField field = LensPsiUtil.findNonStaticField(currentPsiClass, rawPart.getProperty());
 
             if (Objects.nonNull(field)) {
-                result.addElement(new PsiPathElement(rawElement, currentPsiClass, field));
+                result.addPart(new TypedPathPart(rawPart, currentPsiClass, field));
 
                 PsiClassType classType = (PsiClassType) field.getType();
                 PsiClass resolvedPsiClass = classType.resolve();
@@ -67,7 +67,7 @@ public class PathParser {
 
                 currentPsiClass = resolvedPsiClass;
             } else {
-                result.addElement(new PsiPathElement(rawElement, currentPsiClass, null));
+                result.addPart(new TypedPathPart(rawPart, currentPsiClass, null));
                 // if current field was not found, nothing can be done more.
                 break;
             }

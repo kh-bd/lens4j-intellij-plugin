@@ -6,7 +6,7 @@ import lombok.Value;
  * @author Sergei_Khadanovich
  */
 @Value
-public class RawPathElement {
+public class RawPathPart {
     String property;
     int start;
     int end;

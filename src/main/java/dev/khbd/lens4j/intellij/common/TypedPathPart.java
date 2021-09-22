@@ -11,9 +11,9 @@ import java.util.Objects;
  * @author Sergei_Khadanovich
  */
 @Value
-public class PsiPathElement {
+public class TypedPathPart {
     @Delegate
-    RawPathElement baseElement;
+    RawPathPart base;
     PsiClass psiClass;
 
     /**

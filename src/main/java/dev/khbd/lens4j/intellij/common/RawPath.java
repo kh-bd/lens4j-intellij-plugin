@@ -6,5 +6,5 @@ import lombok.EqualsAndHashCode;
  * @author Sergei_Khadanovich
  */
 @EqualsAndHashCode(callSuper = true)
-public class RawPath extends Chain<RawPathElement, RawPath> {
+public class RawPath extends Chain<RawPathPart, RawPath> {
 }

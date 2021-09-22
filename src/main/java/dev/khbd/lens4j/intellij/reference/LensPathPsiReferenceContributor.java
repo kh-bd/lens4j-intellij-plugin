@@ -12,8 +12,8 @@ import com.intellij.psi.PsiReferenceRegistrar;
 import com.intellij.util.ProcessingContext;
 import dev.khbd.lens4j.core.annotations.Lens;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
-import dev.khbd.lens4j.intellij.common.PathParser;
-import dev.khbd.lens4j.intellij.common.PsiPath;
+import dev.khbd.lens4j.intellij.common.path.Path;
+import dev.khbd.lens4j.intellij.common.path.PathParser;
 
 import java.util.function.Function;
 
@@ -52,9 +52,10 @@ public class LensPathPsiReferenceContributor extends PsiReferenceContributor {
         private Function<String, PsiReference[]> getReferencesByPathF(PsiClass rootClass,
                                                                       PsiElement literalValue) {
             return pathStr -> {
-                PsiPath path = new PathParser().psiParse(pathStr, rootClass);
-                return path.stream()
-                        .map(pathElement -> new LensPathPsiReference(literalValue, pathElement))
+                Path path = new PathParser().parse(pathStr).getCorrectPathPrefix();
+
+                return path.getAllSubPaths().stream()
+                        .map(subPath -> new LensPathPsiReference(literalValue, subPath, rootClass))
                         .toArray(PsiReference[]::new);
             };
         }

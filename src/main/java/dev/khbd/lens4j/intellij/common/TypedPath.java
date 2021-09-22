@@ -8,11 +8,11 @@ import java.util.Optional;
  * @author Sergei_Khadanovich
  */
 @EqualsAndHashCode(callSuper = true)
-public class PsiPath extends Chain<PsiPathElement, PsiPath> {
+public class TypedPath extends Chain<TypedPathPart, TypedPath> {
 
-    public Optional<PsiPathElement> findFirstElementWithUnResolvedField() {
+    public Optional<TypedPathPart> findFirstPartWithUnResolvedField() {
         return stream()
-                .filter(PsiPathElement::isFieldUnResolved)
+                .filter(TypedPathPart::isFieldUnResolved)
                 .findFirst();
     }
 }

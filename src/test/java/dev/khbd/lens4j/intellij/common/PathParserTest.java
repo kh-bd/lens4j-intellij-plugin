@@ -21,7 +21,7 @@ public class PathParserTest {
     public void parse_pathDoNotContainPoints_wholePathIsProperty() {
         RawPath path = pathParser.rawParse("property");
 
-        assertThat(path).containsExactly(new RawPathElement("property", 0, 7));
+        assertThat(path).containsExactly(new RawPathPart("property", 0, 7));
     }
 
     @Test
@@ -29,8 +29,8 @@ public class PathParserTest {
         RawPath path = pathParser.rawParse("property1.property2");
 
         assertThat(path).containsExactly(
-                new RawPathElement("property1", 0, 8),
-                new RawPathElement("property2", 10, 18)
+                new RawPathPart("property1", 0, 8),
+                new RawPathPart("property2", 10, 18)
         );
     }
 
@@ -39,10 +39,10 @@ public class PathParserTest {
         RawPath path = pathParser.rawParse("property1.property2.property3.property4");
 
         assertThat(path).containsExactly(
-                new RawPathElement("property1", 0, 8),
-                new RawPathElement("property2", 10, 18),
-                new RawPathElement("property3", 20, 28),
-                new RawPathElement("property4", 30, 38)
+                new RawPathPart("property1", 0, 8),
+                new RawPathPart("property2", 10, 18),
+                new RawPathPart("property3", 20, 28),
+                new RawPathPart("property4", 30, 38)
         );
     }
 }

@@ -15,19 +15,19 @@ import java.util.stream.Stream;
 @EqualsAndHashCode
 public class Chain<E, C extends Chain<E, C>> implements Iterable<E> {
 
-    private final List<E> elements = new ArrayList<>();
+    private final List<E> parts = new ArrayList<>();
 
-    public C addElement(E element) {
-        elements.add(element);
+    public C addPart(E part) {
+        parts.add(part);
         return (C) this;
     }
 
     @Override
     public Iterator<E> iterator() {
-        return elements.iterator();
+        return parts.iterator();
     }
 
     public Stream<E> stream() {
-        return elements.stream();
+        return parts.stream();
     }
 }
