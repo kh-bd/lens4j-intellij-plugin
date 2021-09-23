@@ -35,6 +35,10 @@
                 language="JAVA"
                 implementation="dev.khbd.lens4j.intellij.reference.LensPathPsiReferenceContributor"/>
 
+        <annotator
+                language="JAVA"
+                implementationClass="dev.khbd.lens4j.intellij.annotator.LensPathAnnotator"/>
+
     </extensions>
 
 </idea-plugin>

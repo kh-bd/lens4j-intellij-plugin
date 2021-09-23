@@ -1,11 +1,15 @@
 package dev.khbd.lens4j.intellij.common;
 
+import com.intellij.patterns.ElementPattern;
+import com.intellij.patterns.PsiJavaPatterns;
+import com.intellij.patterns.StandardPatterns;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiLiteralValue;
 import com.intellij.psi.PsiModifier;
 import com.intellij.util.containers.JBIterable;
+import dev.khbd.lens4j.core.annotations.Lens;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -15,6 +19,13 @@ import java.util.Optional;
  * @author Sergei_Khadanovich
  */
 public final class LensPsiUtil {
+
+    public static final ElementPattern<PsiLiteralValue> LENS_PATH_PATTERN =
+            PsiJavaPatterns.psiElement(PsiLiteralValue.class)
+                    .insideAnnotationParam(
+                            StandardPatterns.string().equalTo(Lens.class.getCanonicalName()),
+                            "path"
+                    );
 
     private LensPsiUtil() {
     }

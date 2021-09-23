@@ -5,7 +5,7 @@ package dev.khbd.lens4j.intellij.common.path;
  *
  * @author Sergei_Khadanovich
  */
-interface PathVisitor {
+public interface PathVisitor {
 
     default void start() {
     }

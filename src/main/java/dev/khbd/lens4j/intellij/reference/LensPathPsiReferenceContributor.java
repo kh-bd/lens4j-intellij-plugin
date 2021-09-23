@@ -1,7 +1,5 @@
 package dev.khbd.lens4j.intellij.reference;
 
-import com.intellij.patterns.PsiJavaPatterns;
-import com.intellij.patterns.StandardPatterns;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiLiteralValue;
@@ -10,7 +8,6 @@ import com.intellij.psi.PsiReferenceContributor;
 import com.intellij.psi.PsiReferenceProvider;
 import com.intellij.psi.PsiReferenceRegistrar;
 import com.intellij.util.ProcessingContext;
-import dev.khbd.lens4j.core.annotations.Lens;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
 import dev.khbd.lens4j.intellij.common.path.Path;
 import dev.khbd.lens4j.intellij.common.path.PathParser;
@@ -24,14 +21,7 @@ public class LensPathPsiReferenceContributor extends PsiReferenceContributor {
 
     @Override
     public void registerReferenceProviders(PsiReferenceRegistrar registrar) {
-        registrar.registerReferenceProvider(
-                PsiJavaPatterns.psiElement(PsiLiteralValue.class)
-                        .insideAnnotationParam(
-                                StandardPatterns.string().equalTo(Lens.class.getCanonicalName()),
-                                "path"
-                        ),
-                new LensPathPsiReferenceProvider()
-        );
+        registrar.registerReferenceProvider(LensPsiUtil.LENS_PATH_PATTERN, new LensPathPsiReferenceProvider());
     }
 
     private static class LensPathPsiReferenceProvider extends PsiReferenceProvider {
