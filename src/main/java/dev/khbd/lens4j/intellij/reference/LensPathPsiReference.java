@@ -5,7 +5,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
 import dev.khbd.lens4j.intellij.common.path.Path;
-import dev.khbd.lens4j.intellij.common.path.Property;
+import dev.khbd.lens4j.intellij.common.path.PathPart;
 import dev.khbd.lens4j.intellij.common.path.PsiFieldResolver;
 
 /**
@@ -30,8 +30,7 @@ public class LensPathPsiReference extends PsiReferenceBase<PsiElement> {
     }
 
     private static TextRange getLastPartRange(Path path) {
-        Property property = (Property) path.getLastPart();
-        int start = property.getStart() + 1;
-        return new TextRange(start, start + property.getProperty().length());
+        PathPart lastPart = path.getLastPart();
+        return lastPart.getTextRange().shiftRight(1);
     }
 }
