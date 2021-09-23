@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>com.github.lens4j-intellij-plugin</id>
+    <id>dev.khbd.lens4j-intellij-plugin</id>
     <name>Lens4j</name>
     <vendor email="khadanovich.sergey@gmail.com">Khadanovich Sergei, Bodyak Alex</vendor>
 
