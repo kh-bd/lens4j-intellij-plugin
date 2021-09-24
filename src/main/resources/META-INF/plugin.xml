@@ -35,9 +35,9 @@
                 language="JAVA"
                 implementation="dev.khbd.lens4j.intellij.reference.LensPathPsiReferenceContributor"/>
 
-        <annotator
-                language="JAVA"
-                implementationClass="dev.khbd.lens4j.intellij.annotator.LensPathAnnotator"/>
+        <annotator language="JAVA" implementationClass="dev.khbd.lens4j.intellij.annotator.LensPathAnnotator"/>
+        <annotator language="JAVA" implementationClass="dev.khbd.lens4j.intellij.annotator.LensFactoryNameAnnotator"/>
+        <annotator language="JAVA" implementationClass="dev.khbd.lens4j.intellij.annotator.LensNameAnnotator"/>
 
     </extensions>
 

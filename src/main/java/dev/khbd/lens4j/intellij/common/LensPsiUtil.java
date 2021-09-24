@@ -9,8 +9,10 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiLiteralValue;
 import com.intellij.psi.PsiModifier;
 import com.intellij.util.containers.JBIterable;
+import dev.khbd.lens4j.core.annotations.GenLenses;
 import dev.khbd.lens4j.core.annotations.Lens;
 
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -21,11 +23,13 @@ import java.util.Optional;
 public final class LensPsiUtil {
 
     public static final ElementPattern<PsiLiteralValue> LENS_PATH_PATTERN =
-            PsiJavaPatterns.psiElement(PsiLiteralValue.class)
-                    .insideAnnotationParam(
-                            StandardPatterns.string().equalTo(Lens.class.getCanonicalName()),
-                            "path"
-                    );
+            literalInsideAnnotationParam(Lens.class, "path");
+
+    public static final ElementPattern<PsiLiteralValue> LENS_NAME_PATTERN =
+            literalInsideAnnotationParam(Lens.class, "lensName");
+
+    public static final ElementPattern<PsiLiteralValue> LENS_FACTORY_NAME_PATTERN =
+            literalInsideAnnotationParam(GenLenses.class, "factoryName");
 
     private LensPsiUtil() {
     }
@@ -85,5 +89,16 @@ public final class LensPsiUtil {
                         .filter(PsiClass.class)
                         .first();
         return Optional.ofNullable(firstClass);
+    }
+
+    private static ElementPattern<PsiLiteralValue> literalInsideAnnotationParam(
+            Class<? extends Annotation> annotationClass,
+            String parameterName
+    ) {
+        return PsiJavaPatterns.psiElement(PsiLiteralValue.class)
+                .insideAnnotationParam(
+                        StandardPatterns.string().equalTo(annotationClass.getCanonicalName()),
+                        parameterName
+                );
     }
 }
