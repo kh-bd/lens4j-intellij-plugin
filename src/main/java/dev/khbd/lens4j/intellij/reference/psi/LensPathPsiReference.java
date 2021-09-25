@@ -1,4 +1,4 @@
-package dev.khbd.lens4j.intellij.reference;
+package dev.khbd.lens4j.intellij.reference.psi;
 
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiClass;

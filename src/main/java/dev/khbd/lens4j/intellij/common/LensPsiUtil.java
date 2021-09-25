@@ -16,6 +16,7 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * @author Sergei_Khadanovich
@@ -50,12 +51,16 @@ public final class LensPsiUtil {
      *
      * @param psiClass  class
      * @param fieldName field name
+     * @param isStatic  static or non-static field should be found
      * @return found field or null
      */
-    public static PsiField findNonStaticField(PsiClass psiClass, String fieldName) {
+    public static PsiField findField(PsiClass psiClass, String fieldName, boolean isStatic) {
+        Predicate<PsiField> staticPredicate =
+                field -> field.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
+
         PsiField[] fields = psiClass.getAllFields();
         return Arrays.stream(fields)
-                .filter(field -> !field.getModifierList().hasExplicitModifier(PsiModifier.STATIC))
+                .filter(field -> isStatic == staticPredicate.test(field))
                 .filter(field -> field.getName().equals(fieldName))
                 .findFirst()
                 .orElse(null);

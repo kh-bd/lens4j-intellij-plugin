@@ -1,0 +1,25 @@
+package dev.khbd.lens4j.intellij.reference;
+
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiReference;
+import dev.khbd.lens4j.intellij.common.path.Path;
+import dev.khbd.lens4j.intellij.common.path.PathParser;
+import dev.khbd.lens4j.intellij.reference.psi.LensPathPsiReference;
+
+/**
+ * @author Sergei_Khadanovich
+ */
+class LensPathPsiReferenceProvider extends AbstractNotBlankStringLiteralReferenceProvider {
+
+    @Override
+    protected PsiReference[] getReferences(PsiClass psiClass,
+                                           PsiElement originalElement,
+                                           String pathStr) {
+        Path path = new PathParser().parse(pathStr).getCorrectPathPrefix();
+
+        return path.getAllSubPaths().stream()
+                .map(subPath -> new LensPathPsiReference(originalElement, subPath, psiClass))
+                .toArray(PsiReference[]::new);
+    }
+}
