@@ -32,7 +32,7 @@ test {
 
 patchPluginXml {
     changeNotes = loadHtml("change-notes.html")
-    description = loadHtml("description.html")
+    pluginDescription = loadHtml("description.html")
 }
 
 def loadHtml(String fileName) {
