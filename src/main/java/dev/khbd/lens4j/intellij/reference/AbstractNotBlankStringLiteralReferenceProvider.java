@@ -24,7 +24,7 @@ public abstract class AbstractNotBlankStringLiteralReferenceProvider extends Psi
                 ).orElse(PsiReference.EMPTY_ARRAY);
     }
 
-    protected abstract PsiReference[] getReferences(PsiClass psiClass,
+    protected abstract PsiReference[] getReferences(PsiClass enclosingClass,
                                                     PsiElement originalElement,
                                                     String value);
 }

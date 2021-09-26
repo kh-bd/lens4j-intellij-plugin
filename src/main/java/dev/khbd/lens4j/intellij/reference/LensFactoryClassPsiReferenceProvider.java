@@ -11,9 +11,9 @@ import dev.khbd.lens4j.intellij.reference.psi.FactoryClassPsiReference;
 public class LensFactoryClassPsiReferenceProvider extends AbstractNotBlankStringLiteralReferenceProvider {
 
     @Override
-    protected PsiReference[] getReferences(PsiClass psiClass,
+    protected PsiReference[] getReferences(PsiClass enclosingClass,
                                            PsiElement originalElement,
                                            String factoryName) {
-        return new PsiReference[]{new FactoryClassPsiReference(psiClass, originalElement, factoryName)};
+        return new PsiReference[]{new FactoryClassPsiReference(enclosingClass, originalElement, factoryName)};
     }
 }

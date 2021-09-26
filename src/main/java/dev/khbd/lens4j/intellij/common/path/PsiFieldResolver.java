@@ -34,7 +34,8 @@ public class PsiFieldResolver implements PathVisitor {
             return;
         }
 
-        field = LensPsiUtil.findField(currentClass, property.getProperty(), false);
+        field = LensPsiUtil.findField(currentClass, property.getProperty(), false)
+                .orElse(null);
         if (Objects.isNull(field)) {
             fail = true;
             return;

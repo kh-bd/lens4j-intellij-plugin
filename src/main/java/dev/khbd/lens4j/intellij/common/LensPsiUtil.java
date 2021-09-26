@@ -1,13 +1,17 @@
 package dev.khbd.lens4j.intellij.common;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.patterns.ElementPattern;
 import com.intellij.patterns.PsiJavaPatterns;
 import com.intellij.patterns.StandardPatterns;
+import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiLiteralValue;
 import com.intellij.psi.PsiModifier;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.util.PsiUtil;
 import com.intellij.util.containers.JBIterable;
 import dev.khbd.lens4j.core.annotations.GenLenses;
 import dev.khbd.lens4j.core.annotations.Lens;
@@ -54,7 +58,7 @@ public final class LensPsiUtil {
      * @param isStatic  static or non-static field should be found
      * @return found field or null
      */
-    public static PsiField findField(PsiClass psiClass, String fieldName, boolean isStatic) {
+    public static Optional<PsiField> findField(PsiClass psiClass, String fieldName, boolean isStatic) {
         Predicate<PsiField> staticPredicate =
                 field -> field.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
 
@@ -62,8 +66,7 @@ public final class LensPsiUtil {
         return Arrays.stream(fields)
                 .filter(field -> isStatic == staticPredicate.test(field))
                 .filter(field -> field.getName().equals(fieldName))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     /**
@@ -94,6 +97,24 @@ public final class LensPsiUtil {
                         .filter(PsiClass.class)
                         .first();
         return Optional.ofNullable(firstClass);
+    }
+
+    /**
+     * Find class with specified simple name in the same package as {@code psiClass}.
+     *
+     * @param psiClass   class
+     * @param simpleName class simple name
+     * @return found class or empty
+     */
+    public static Optional<PsiClass> findTheSamePackageClass(PsiClass psiClass, String simpleName) {
+        return Optional.ofNullable(PsiUtil.getPackageName(psiClass))
+                .flatMap(packageName -> {
+                    Project project = psiClass.getProject();
+                    JavaPsiFacade facade = JavaPsiFacade.getInstance(project);
+                    String fqn = packageName + "." + simpleName;
+                    PsiClass resolvedClass = facade.findClass(fqn, GlobalSearchScope.allScope(project));
+                    return Optional.ofNullable(resolvedClass);
+                });
     }
 
     private static ElementPattern<PsiLiteralValue> literalInsideAnnotationParam(

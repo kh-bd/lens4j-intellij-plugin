@@ -13,13 +13,13 @@ import dev.khbd.lens4j.intellij.reference.psi.LensPathPsiReference;
 class LensPathPsiReferenceProvider extends AbstractNotBlankStringLiteralReferenceProvider {
 
     @Override
-    protected PsiReference[] getReferences(PsiClass psiClass,
+    protected PsiReference[] getReferences(PsiClass enclosingClass,
                                            PsiElement originalElement,
                                            String pathStr) {
         Path path = new PathParser().parse(pathStr).getCorrectPathPrefix();
 
         return path.getAllSubPaths().stream()
-                .map(subPath -> new LensPathPsiReference(originalElement, subPath, psiClass))
+                .map(subPath -> new LensPathPsiReference(originalElement, subPath, enclosingClass))
                 .toArray(PsiReference[]::new);
     }
 }

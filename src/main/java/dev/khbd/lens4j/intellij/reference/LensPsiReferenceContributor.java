@@ -17,5 +17,8 @@ public class LensPsiReferenceContributor extends PsiReferenceContributor {
         registrar.registerReferenceProvider(LensPsiUtil.LENS_FACTORY_NAME_PATTERN,
                 new LensFactoryClassPsiReferenceProvider()
         );
+        registrar.registerReferenceProvider(LensPsiUtil.LENS_NAME_PATTERN,
+                new LensFactoryClassFieldPsiReferenceProvider()
+        );
     }
 }
