@@ -29,6 +29,15 @@ public class Path {
     }
 
     /**
+     * Path length.
+     *
+     * @return path elements count
+     */
+    public int length() {
+        return parts.size();
+    }
+
+    /**
      * Add part to path.
      *
      * <p>Be careful, this method mutates current instance.
@@ -79,6 +88,20 @@ public class Path {
             throw new NoSuchElementException();
         }
         return parts.get(0);
+    }
+
+    /**
+     * Create new path without last part.
+     *
+     * @return new path without last part
+     */
+    public Path removeLastPart() {
+        if (isEmpty()) {
+            throw new IllegalStateException("Path is empty. Cannot remove last part");
+        }
+        List<PathPart> newParts = new ArrayList<>(parts);
+        newParts.remove(newParts.size() - 1);
+        return new Path(newParts);
     }
 
     /**

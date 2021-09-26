@@ -39,4 +39,22 @@ public interface PathPart {
     default boolean hasTheSameKindWith(PathPart other) {
         return getKind() == other.getKind();
     }
+
+    /**
+     * Check is part point or not.
+     *
+     * @return {@literal true} part is point and {@literal false} otherwise
+     */
+    default boolean isPoint() {
+        return getKind() == PathPartKind.POINT;
+    }
+
+    /**
+     * Check is part property or not.
+     *
+     * @return {@literal true} part is property and {@literal false} otherwise
+     */
+    default boolean isProperty() {
+        return getKind() == PathPartKind.PROPERTY;
+    }
 }

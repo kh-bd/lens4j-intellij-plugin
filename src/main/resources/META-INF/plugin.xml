@@ -38,6 +38,9 @@
         <annotator language="JAVA" implementationClass="dev.khbd.lens4j.intellij.annotator.LensFactoryNameAnnotator"/>
         <annotator language="JAVA" implementationClass="dev.khbd.lens4j.intellij.annotator.LensNameAnnotator"/>
 
+        <completion.contributor language="JAVA"
+                                implementationClass="dev.khbd.lens4j.intellij.completion.LensPathCompletionContributor"/>
+
     </extensions>
 
 </idea-plugin>
