@@ -31,7 +31,10 @@ test {
 }
 
 patchPluginXml {
-    changeNotes = """
-      Add change notes here.<br/>
-      <em>most HTML tags may be used</em>"""
+    changeNotes = loadHtml("change-notes.html")
+    description = loadHtml("description.html")
+}
+
+def loadHtml(String fileName) {
+    file(fileName).text.replace('<html>', '').replace('</html>', '')
 }
