@@ -81,16 +81,6 @@ public class Path {
         return parts.get(0);
     }
 
-    public Path removeLast() {
-        parts.remove(getLastPart());
-        return this;
-    }
-
-    public Path removeFirst() {
-        parts.remove(getFirstPart());
-        return this;
-    }
-
     /**
      * Make path copy.
      *
@@ -104,7 +94,7 @@ public class Path {
      * Get correct path prefix.
      *
      * <p>Correct path has formal structure:
-     * path = property | property [point property]*
+     * path = property | property [point property]* [point]
      *
      * @return correct path prefix
      */
@@ -112,6 +102,18 @@ public class Path {
         CorrectPathPrefixCollector collector = new CorrectPathPrefixCollector();
         visit(collector);
         return collector.getPathPrefix();
+    }
+
+    /**
+     * Check path has correct structure or not.
+     *
+     * <p>Correct path has formal structure:
+     * path = property | property [point property]* [point]
+     *
+     * @return {@literal true} if path structure is correct and {@literal false} otherwise
+     */
+    public boolean hasCorrectStructure() {
+        return this.equals(getCorrectPathPrefix());
     }
 
     private static final class CorrectPathPrefixCollector implements PathVisitor {
@@ -127,13 +129,6 @@ public class Path {
         @Override
         public void visitProperty(Property property) {
             tryCollect(property);
-        }
-
-        @Override
-        public void finish() {
-            if (!result.isEmpty() && result.getLastPart().getKind() == PathPartKind.POINT) {
-                result.removeLast();
-            }
         }
 
         public Path getPathPrefix() {

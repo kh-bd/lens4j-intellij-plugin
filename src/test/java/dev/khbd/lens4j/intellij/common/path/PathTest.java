@@ -26,7 +26,7 @@ public class PathTest {
 
         Path result = path.getCorrectPathPrefix();
 
-        assertThat(result).isEqualTo(pathParser.parse("pr1.pr2"));
+        assertThat(result).isEqualTo(pathParser.parse("pr1.pr2."));
     }
 
     @Test
@@ -44,6 +44,43 @@ public class PathTest {
 
         Path result = path.getCorrectPathPrefix();
 
-        assertThat(result).isEqualTo(pathParser.parse("pr1.pr2"));
+        assertThat(result).isEqualTo(pathParser.parse("pr1.pr2."));
+    }
+
+    // hasCorrectStructure
+
+    @Test
+    public void hasCorrectStructure_pathIsEmpty_returnTrue() {
+        Path path = pathParser.parse("");
+
+        assertThat(path.hasCorrectStructure()).isTrue();
+    }
+
+    @Test
+    public void hasCorrectStructure_startsFromPoint_returnFalse() {
+        Path path = pathParser.parse(".pr");
+
+        assertThat(path.hasCorrectStructure()).isFalse();
+    }
+
+    @Test
+    public void hasCorrectStructure_severalPointsInTheMiddle_returnFalse() {
+        Path path = pathParser.parse("pr1...pr2");
+
+        assertThat(path.hasCorrectStructure()).isFalse();
+    }
+
+    @Test
+    public void hasCorrectStructure_endsWithPoint_returnTrue() {
+        Path path = pathParser.parse("pr1.pr2.");
+
+        assertThat(path.hasCorrectStructure()).isTrue();
+    }
+
+    @Test
+    public void hasCorrectStructure_severalProperties_returnTrue() {
+        Path path = pathParser.parse("pr1.pr2.pr3.pr4");
+
+        assertThat(path.hasCorrectStructure()).isTrue();
     }
 }
