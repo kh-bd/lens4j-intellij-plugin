@@ -23,6 +23,12 @@
             // accessors
         }
     }
+
+    // incorrect
+    @GenLenses(lenses = @Lens(path = "value"))
+    class Outer&lt;A&gt; {
+        A value;
+    }
 </code></pre>
 </p>
 <p>

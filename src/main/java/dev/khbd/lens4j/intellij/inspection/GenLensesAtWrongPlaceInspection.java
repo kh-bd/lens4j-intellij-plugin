@@ -43,6 +43,10 @@ public class GenLensesAtWrongPlaceInspection extends AbstractBaseJavaLocalInspec
             return new ProblemDescriptor[]{genLensOnNestedClass(genLens, manager, isOnTheFly)};
         }
 
+        if (psiClass.getTypeParameters().length > 0) {
+            return new ProblemDescriptor[]{genLensOnGenericClass(genLens, manager, isOnTheFly)};
+        }
+
         return ProblemDescriptor.EMPTY_ARRAY;
     }
 
@@ -65,6 +69,18 @@ public class GenLensesAtWrongPlaceInspection extends AbstractBaseJavaLocalInspec
                 genLens,
                 Lens4jBundle.getMessage("inspection.gen.lenses.on.interface"),
                 new RemoveGenLensLocalQuickFix("inspection.gen.lenses.on.interface.remove.annotation"),
+                ProblemHighlightType.GENERIC_ERROR,
+                isOnTheFly
+        );
+    }
+
+    private ProblemDescriptor genLensOnGenericClass(PsiAnnotation genLens,
+                                                    InspectionManager manager,
+                                                    boolean isOnTheFly) {
+        return manager.createProblemDescriptor(
+                genLens,
+                Lens4jBundle.getMessage("inspection.gen.lenses.on.generic.class"),
+                new RemoveGenLensLocalQuickFix("inspection.gen.lenses.on.generic.class.remove.annotation"),
                 ProblemHighlightType.GENERIC_ERROR,
                 isOnTheFly
         );
