@@ -6,10 +6,12 @@ import com.intellij.patterns.PsiJavaPatterns;
 import com.intellij.patterns.StandardPatterns;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiLiteralValue;
 import com.intellij.psi.PsiModifier;
+import com.intellij.psi.PsiType;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiUtil;
 import com.intellij.util.containers.JBIterable;
@@ -18,9 +20,11 @@ import dev.khbd.lens4j.core.annotations.Lens;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author Sergei_Khadanovich
@@ -51,7 +55,23 @@ public final class LensPsiUtil {
     }
 
     /**
-     * Find non-static field with specified name.
+     * Resolved field class.
+     *
+     * @param field field
+     * @return field class or empty
+     */
+    public static Optional<PsiClass> resolveFieldClass(PsiField field) {
+        PsiType type = field.getType();
+        if (!(type instanceof PsiClassType)) {
+            return Optional.empty();
+        }
+
+        PsiClassType classType = (PsiClassType) field.getType();
+        return Optional.ofNullable(classType.resolve());
+    }
+
+    /**
+     * Find field with specified name.
      *
      * @param psiClass  class
      * @param fieldName field name
@@ -59,14 +79,27 @@ public final class LensPsiUtil {
      * @return found field or null
      */
     public static Optional<PsiField> findField(PsiClass psiClass, String fieldName, boolean isStatic) {
+        return findAllFields(psiClass, isStatic)
+                .stream()
+                .filter(field -> field.getName().equals(fieldName))
+                .findFirst();
+    }
+
+    /**
+     * Find all fields.
+     *
+     * @param psiClass class
+     * @param isStatic static or non-static field should be found
+     * @return found fields
+     */
+    public static List<PsiField> findAllFields(PsiClass psiClass, boolean isStatic) {
         Predicate<PsiField> staticPredicate =
                 field -> field.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
 
         PsiField[] fields = psiClass.getAllFields();
         return Arrays.stream(fields)
                 .filter(field -> isStatic == staticPredicate.test(field))
-                .filter(field -> field.getName().equals(fieldName))
-                .findFirst();
+                .collect(Collectors.toList());
     }
 
     /**

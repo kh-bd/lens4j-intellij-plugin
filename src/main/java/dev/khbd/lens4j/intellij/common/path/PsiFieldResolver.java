@@ -1,9 +1,7 @@
 package dev.khbd.lens4j.intellij.common.path;
 
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiType;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
 import lombok.RequiredArgsConstructor;
 
@@ -41,14 +39,8 @@ public class PsiFieldResolver implements PathVisitor {
             return;
         }
 
-        PsiType type = field.getType();
-        if (!(type instanceof PsiClassType)) {
-            fail = true;
-            return;
-        }
-
-        PsiClassType classType = (PsiClassType) field.getType();
-        PsiClass resolvedPsiClass = classType.resolve();
+        PsiClass resolvedPsiClass = LensPsiUtil.resolveFieldClass(field)
+                .orElse(null);
 
         if (Objects.isNull(resolvedPsiClass)) {
             fail = true;
@@ -58,6 +50,15 @@ public class PsiFieldResolver implements PathVisitor {
         currentClass = resolvedPsiClass;
     }
 
+    /**
+     * Check was path resolved or not.
+     *
+     * @return {@literal true} if path was resolved and {@literal false} otherwise
+     */
+    public boolean isResolved() {
+        return Objects.nonNull(field) && !fail;
+    }
+
     public PsiField getResolvedField() {
         if (fail) {
             return null;
@@ -65,6 +66,14 @@ public class PsiFieldResolver implements PathVisitor {
         return field;
     }
 
+    /**
+     * Get last resolved class.
+     *
+     * <p> If property was resolved, return field class.
+     * If property was not resolved, return last resolved field class or root class.
+     *
+     * @return last resolved class
+     */
     public PsiClass getResolvedClass() {
         return currentClass;
     }
