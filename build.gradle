@@ -22,7 +22,7 @@ dependencies {
 }
 
 intellij {
-    version = "2021.2.1"
+    version = "2021.2"
     plugins = ['com.intellij.java']
 }
 
