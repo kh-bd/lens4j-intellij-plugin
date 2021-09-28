@@ -33,7 +33,7 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
 
     @Override
     public ProblemDescriptor[] checkClass(PsiClass psiClass, InspectionManager manager, boolean isOnTheFly) {
-        if (psiClass.isInterface() || LensPsiUtil.isNested(psiClass)) {
+        if (psiClass.isInterface()) {
             return ProblemDescriptor.EMPTY_ARRAY;
         }
 

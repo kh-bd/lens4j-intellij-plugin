@@ -15,7 +15,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import dev.khbd.lens4j.core.annotations.GenLenses;
 import dev.khbd.lens4j.intellij.Lens4jBundle;
-import dev.khbd.lens4j.intellij.common.LensPsiUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -39,27 +38,11 @@ public class GenLensesAtWrongPlaceInspection extends AbstractBaseJavaLocalInspec
             return new ProblemDescriptor[]{genLensOnInterface(genLens, manager, isOnTheFly)};
         }
 
-        if (LensPsiUtil.isNested(psiClass)) {
-            return new ProblemDescriptor[]{genLensOnNestedClass(genLens, manager, isOnTheFly)};
-        }
-
         if (psiClass.getTypeParameters().length > 0) {
             return new ProblemDescriptor[]{genLensOnGenericClass(genLens, manager, isOnTheFly)};
         }
 
         return ProblemDescriptor.EMPTY_ARRAY;
-    }
-
-    private ProblemDescriptor genLensOnNestedClass(PsiAnnotation genLens,
-                                                   InspectionManager manager,
-                                                   boolean isOnTheFly) {
-        return manager.createProblemDescriptor(
-                genLens,
-                Lens4jBundle.getMessage("inspection.gen.lenses.on.nested.class"),
-                new RemoveGenLensLocalQuickFix("inspection.gen.lenses.on.nested.class.remove.annotation"),
-                ProblemHighlightType.GENERIC_ERROR,
-                isOnTheFly
-        );
     }
 
     private ProblemDescriptor genLensOnInterface(PsiAnnotation genLens,
