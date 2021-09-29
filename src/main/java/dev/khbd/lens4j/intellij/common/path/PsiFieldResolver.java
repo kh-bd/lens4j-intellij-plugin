@@ -32,22 +32,25 @@ public class PsiFieldResolver implements PathVisitor {
             return;
         }
 
+        if (Objects.nonNull(field)) {
+            PsiClass resolvedPsiClass = LensPsiUtil.resolveFieldClass(field)
+                    .orElse(null);
+
+            if (Objects.isNull(resolvedPsiClass)) {
+                fail = true;
+                return;
+            }
+
+            currentClass = resolvedPsiClass;
+        }
+
         field = LensPsiUtil.findField(currentClass, property.getProperty(), false)
                 .orElse(null);
+
         if (Objects.isNull(field)) {
             fail = true;
-            return;
         }
 
-        PsiClass resolvedPsiClass = LensPsiUtil.resolveFieldClass(field)
-                .orElse(null);
-
-        if (Objects.isNull(resolvedPsiClass)) {
-            fail = true;
-            return;
-        }
-
-        currentClass = resolvedPsiClass;
     }
 
     /**
@@ -69,8 +72,8 @@ public class PsiFieldResolver implements PathVisitor {
     /**
      * Get last resolved class.
      *
-     * <p> If property was resolved, return field class.
-     * If property was not resolved, return last resolved field class or root class.
+     * <p> If property was resolved, return enclosing class for that field.
+     * If property was not resolved, return last resolved field enclosing class or root class.
      *
      * @return last resolved class
      */

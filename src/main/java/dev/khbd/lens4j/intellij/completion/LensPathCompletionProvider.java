@@ -57,8 +57,7 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
             Property property = (Property) lastPart;
             if (resolver.isResolved()) {
                 // path is correct and fully resolved, but can exist more variants
-                PsiClass propertyClass = resolver.getResolvedField().getContainingClass();
-                resultSet.addAllElements(allFieldsStartsWithAsVariants(propertyClass, property.getProperty()));
+                resultSet.addAllElements(allFieldsStartsWithAsVariants(resolver.getResolvedClass(), property.getProperty()));
                 return;
             }
 
@@ -70,7 +69,8 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
 
         // path is 'p1.p2.'
         if (lastPart.isPoint() && resolver.isResolved()) {
-            resultSet.addAllElements(allFieldsAsVariants(resolver.getResolvedClass()));
+            LensPsiUtil.resolveFieldClass(resolver.getResolvedField())
+                    .ifPresent(fieldClass -> resultSet.addAllElements(allFieldsAsVariants(fieldClass)));
         }
     }
 
