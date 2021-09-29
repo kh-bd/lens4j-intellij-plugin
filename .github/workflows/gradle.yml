@@ -7,11 +7,9 @@ on:
   push:
     branches:
     - main
-    - intellij*
   pull_request:
     branches:
     - main
-    - intellij*
 
 jobs:
   test:
@@ -27,4 +25,4 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Run tests with gradle
-      run: ./gradlew build
+      run: ./gradlew --warning-mode=all build
