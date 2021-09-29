@@ -38,7 +38,7 @@ patchPluginXml {
 
 task libs(type: Sync) {
     from configurations.compileClasspath
-    into "$buildDir/libs"
+    into "$buildDir/lib"
     include 'lens4j-core-' + lens4j_version + '.jar'
     rename 'lens4j-core-' + lens4j_version, 'lens4j'
 }

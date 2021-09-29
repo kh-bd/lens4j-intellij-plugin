@@ -23,7 +23,7 @@ import java.io.File;
 @UtilityClass
 public class LensTestUtil {
 
-    private static final String LIB_PATH = "build/libs";
+    private static final String LIB_PATH = "build/lib";
 
     /**
      * Create project descriptor.
