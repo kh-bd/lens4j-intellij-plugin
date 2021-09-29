@@ -23,8 +23,10 @@ import java.io.File;
 @UtilityClass
 public class LensTestUtil {
 
-    private static final String LIB_PATH = "build/lib";
-    private static final String MOCK_JDK_PATH = "lib/JDK-";
+    private static final String LIB_PATH = "lib";
+    private static final String JDK_PATH = "JDK";
+
+    private static final String LENS4J_LIB = "lens4j-core-0.1.3.jar";
 
     /**
      * Create project descriptor.
@@ -43,7 +45,7 @@ public class LensTestUtil {
      * @param module     module
      */
     public static void loadLens4jLib(Disposable disposable, Module module) {
-        loadLibrary(disposable, module, "lens4j", "lens4j.jar");
+        loadLibrary(disposable, module, "lens4j", LENS4J_LIB);
     }
 
     /**
@@ -74,7 +76,7 @@ public class LensTestUtil {
             return JavaSdk.getInstance()
                     .createJdk(
                             languageLeveL.name(),
-                            MOCK_JDK_PATH + languageLeveL.toJavaVersion(),
+                            LIB_PATH + "/" + JDK_PATH + "-" + languageLeveL.toJavaVersion(),
                             false
                     );
         }
