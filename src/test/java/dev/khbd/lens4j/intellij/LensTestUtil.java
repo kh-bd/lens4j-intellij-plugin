@@ -24,6 +24,7 @@ import java.io.File;
 public class LensTestUtil {
 
     private static final String LIB_PATH = "build/lib";
+    private static final String MOCK_JDK_PATH = "lib/JDK-";
 
     /**
      * Create project descriptor.
@@ -73,8 +74,8 @@ public class LensTestUtil {
             return JavaSdk.getInstance()
                     .createJdk(
                             languageLeveL.name(),
-                            "build/mockJDK-" + languageLeveL.toJavaVersion(),
-                            true
+                            MOCK_JDK_PATH + languageLeveL.toJavaVersion(),
+                            false
                     );
         }
 

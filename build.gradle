@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'dev.khbd.lens4j'
-version plugin_version
+version '0.1.0'
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
@@ -23,7 +23,7 @@ dependencies {
 }
 
 intellij {
-    version = intellij_version
+    version = System.getenv().getOrDefault('INTELLIJ_VERSION', intellij_version)
     plugins = ['com.intellij.java']
 }
 
@@ -43,29 +43,7 @@ task libs(type: Sync) {
     rename 'lens4j-core-' + lens4j_version, 'lens4j'
 }
 
-def baseMockJdkLocation = "https://github.com/JetBrains/intellij-community/raw/master/java/mock"
-def baseMockJdkDestination = "$buildDir/mock"
-
-def downloadMockJdk(baseLocation, baseDestination, jdkVersion) {
-    def location = baseLocation + jdkVersion
-    def destination = baseDestination + jdkVersion
-
-    download {
-        src([
-                "$location/jre/lib/annotations.jar",
-                "$location/jre/lib/rt.jar"
-        ])
-        dest "$destination/jre/lib/"
-        overwrite false
-        quiet false
-    }
-}
-
-task downloadMockJdk11() {
-    downloadMockJdk(baseMockJdkLocation, baseMockJdkDestination, "JDK-11")
-}
-
-test.dependsOn(libs, downloadMockJdk11)
+test.dependsOn(libs)
 
 test {
     testLogging {
