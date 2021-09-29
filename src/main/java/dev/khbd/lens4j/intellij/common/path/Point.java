@@ -23,6 +23,6 @@ public class Point implements PathPart {
 
     @Override
     public TextRange getTextRange() {
-        return new TextRange(position, position);
+        return new TextRange(position, position + 1);
     }
 }
