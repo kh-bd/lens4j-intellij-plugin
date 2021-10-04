@@ -48,7 +48,6 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
 
         PsiFieldResolver resolver = new PsiFieldResolver(enclosingClass);
         path.visit(resolver);
-        resolver.getResolvedField();
 
         PathPart lastPart = path.getLastPart();
 
