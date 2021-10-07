@@ -155,9 +155,4 @@ public class LensPathCompletionTest extends BaseIntellijTest {
 
         assertThat(lookupElements).isEmpty();
     }
-
-    @Override
-    protected String getTestDataPath() {
-        return "src/test/resources/testData";
-    }
 }

@@ -51,7 +51,9 @@ public abstract class BaseIntellijTest {
         }
     }
 
-    protected abstract String getTestDataPath();
+    protected String getTestDataPath() {
+        return "src/test/resources/testData";
+    }
 
     protected LanguageLevel getLanguageLevel() {
         return LanguageLevel.JDK_11;
