@@ -1,5 +1,6 @@
 package dev.khbd.lens4j.intellij;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.LanguageLevelProjectExtension;
 import com.intellij.pom.java.LanguageLevel;
@@ -14,6 +15,10 @@ import com.intellij.testFramework.fixtures.TestFixtureBuilder;
 import com.intellij.testFramework.fixtures.impl.LightTempDirTestFixtureImpl;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Sergei_Khadanovich
@@ -72,5 +77,18 @@ public abstract class BaseIntellijTest {
         return policy != null
                 ? policy.createTempDirTestFixture()
                 : new LightTempDirTestFixtureImpl(true);
+    }
+
+    protected <T> T read(Callable<T> callable) throws Exception {
+        CompletableFuture<T> future = new CompletableFuture<>();
+        ApplicationManager.getApplication().invokeLater(() -> {
+            try {
+                T value = callable.call();
+                future.complete(value);
+            } catch (Exception ex) {
+                future.completeExceptionally(ex);
+            }
+        });
+        return future.get(1L, TimeUnit.SECONDS);
     }
 }

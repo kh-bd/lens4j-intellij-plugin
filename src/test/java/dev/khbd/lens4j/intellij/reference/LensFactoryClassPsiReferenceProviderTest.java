@@ -2,11 +2,9 @@ package dev.khbd.lens4j.intellij.reference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReference;
 import dev.khbd.lens4j.intellij.BaseIntellijTest;
-import dev.khbd.lens4j.intellij.reference.psi.FactoryClassPsiReference;
 import org.testng.annotations.Test;
 
 /**
@@ -15,30 +13,25 @@ import org.testng.annotations.Test;
 public class LensFactoryClassPsiReferenceProviderTest extends BaseIntellijTest {
 
     @Test
-    public void resolve_factoryExists_referenceToFactory() {
+    public void resolve_factoryExists_referenceToFactory() throws Exception {
         fixture.configureByFiles("reference/factory/Payment.java",
                 "reference/factory/PaymentLenses.java");
 
-        ApplicationManager.getApplication().invokeLater(() -> {
-            PsiReference reference = fixture.getReferenceAtCaretPositionWithAssertion();
+        PsiElement factoryClassElement =
+                read(() -> fixture.getReferenceAtCaretPositionWithAssertion().resolve());
+        PsiClass expectedClass = read(() -> fixture.findClass("reference.factory.PaymentLenses"));
 
-            assertThat(reference).isInstanceOf(FactoryClassPsiReference.class);
-            PsiElement factoryClassElement = reference.resolve();
-            assertThat(factoryClassElement).isNotNull()
-                    .isEqualTo(fixture.findClass("reference.factory.PaymentLenses"));
-        });
+        assertThat(factoryClassElement).isNotNull()
+                .isEqualTo(expectedClass);
     }
 
     @Test
-    public void resolve_factoryNotFound_referenceCanNoBeResolved() {
+    public void resolve_factoryNotFound_referenceCanNoBeResolved() throws Exception {
         fixture.configureByFiles("reference/factory/Payment.java");
 
-        ApplicationManager.getApplication().invokeLater(() -> {
-            PsiReference reference = fixture.getReferenceAtCaretPositionWithAssertion();
+        PsiElement factoryClassElement =
+                read(() -> fixture.getReferenceAtCaretPositionWithAssertion().resolve());
 
-            assertThat(reference).isInstanceOf(FactoryClassPsiReference.class);
-            PsiElement factoryClassElement = reference.resolve();
-            assertThat(factoryClassElement).isNull();
-        });
+        assertThat(factoryClassElement).isNull();
     }
 }
