@@ -2,6 +2,7 @@ package dev.khbd.lens4j.intellij.annotator;
 
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
@@ -27,8 +28,8 @@ public class LensPathAnnotator extends AbstractNotBlankStringLiteralAnnotator {
     protected void annotateStringLiteral(String literalValue,
                                          TextRange originalTextRange,
                                          AnnotationHolder holder) {
-        Path path = new PathParser().parse(literalValue).getCorrectPathPrefix();
-
+        PathParser parser = ApplicationManager.getApplication().getService(PathParser.class);
+        Path path = parser.parse(literalValue).getCorrectPathPrefix();
         path.visit(new PathPartAnnotatorVisitor(originalTextRange, holder));
     }
 
