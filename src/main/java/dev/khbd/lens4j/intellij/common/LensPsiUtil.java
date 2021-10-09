@@ -21,7 +21,6 @@ import dev.khbd.lens4j.core.annotations.Lens;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -41,17 +40,6 @@ public final class LensPsiUtil {
             literalInsideAnnotationParam(GenLenses.class, "factoryName");
 
     private LensPsiUtil() {
-    }
-
-    /**
-     * Check is class nested or not.
-     *
-     * @param psiClass class to check
-     * @return {@literal true} if class is nested and {@literal false} otherwise
-     */
-    public static boolean isNested(PsiClass psiClass) {
-        PsiClass containingClass = psiClass.getContainingClass();
-        return Objects.nonNull(containingClass);
     }
 
     /**
