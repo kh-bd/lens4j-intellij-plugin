@@ -1,11 +1,14 @@
 package dev.khbd.lens4j.intellij.common.path;
 
+import com.intellij.openapi.components.Service;
+
 /**
  * Path parser.
  *
  * @author Sergei_Khadanovich
  */
-public class PathParser {
+@Service
+public final class PathParser {
 
     /**
      * Parse string into {@link Path} instance.

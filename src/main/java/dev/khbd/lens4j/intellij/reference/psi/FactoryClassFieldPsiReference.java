@@ -1,16 +1,13 @@
 package dev.khbd.lens4j.intellij.reference.psi;
 
-import com.intellij.psi.PsiAnnotation;
-import com.intellij.psi.PsiAnnotationMemberValue;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiLiteralExpression;
 import com.intellij.psi.PsiReferenceBase;
-import dev.khbd.lens4j.core.annotations.GenLenses;
+import dev.khbd.lens4j.intellij.common.FactoryNameResolver;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
 
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -31,19 +28,10 @@ public class FactoryClassFieldPsiReference extends PsiReferenceBase<PsiElement> 
 
     @Override
     public PsiElement resolve() {
-        PsiAnnotation genLens = enclosingClass.getAnnotation(GenLenses.class.getCanonicalName());
+        FactoryNameResolver factoryNameResolver =
+                ApplicationManager.getApplication().getService(FactoryNameResolver.class);
 
-        PsiAnnotationMemberValue factoryNameValue = genLens.findAttributeValue("factoryName");
-        if (Objects.isNull(factoryNameValue)) {
-            return null;
-        }
-
-        if ((!(factoryNameValue instanceof PsiLiteralExpression))) {
-            return null;
-        }
-
-        return LensPsiUtil.getStringValue((PsiLiteralExpression) factoryNameValue)
-                .filter(factoryName -> !factoryName.isBlank())
+        return factoryNameResolver.resolveFactoryName(enclosingClass)
                 .flatMap(factoryName -> LensPsiUtil.findTheSamePackageClass(enclosingClass, factoryName))
                 .flatMap(this::resolveStaticField)
                 .orElse(null);
