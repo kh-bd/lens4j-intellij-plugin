@@ -50,4 +50,18 @@ public class LensFactoryClassFieldPsiReferenceProviderTest extends BaseIntellijT
         });
         assertThat(lensField).isEqualTo(expectedField);
     }
+
+    @Test
+    public void resolve_factoryNameIsNotSuppliedButExistsFactoryAndField_deriveFactoryNameAndResolveField() throws Exception {
+        fixture.configureByFiles("reference/factory_field/factory_name_empty/Payment.java",
+                "reference/factory_field/factory_name_empty/PaymentLenses.java");
+
+        PsiElement lensField = read(() -> fixture.getReferenceAtCaretPositionWithAssertion().resolve());
+        assertThat(lensField).isNotNull();
+        PsiField expectedField = read(() -> {
+            PsiClass factoryClass = fixture.findClass("reference.factory_field.factory_name_empty.PaymentLenses");
+            return LensPsiUtil.findField(factoryClass, "NAME_READ_LENS", true).get();
+        });
+        assertThat(lensField).isEqualTo(expectedField);
+    }
 }
