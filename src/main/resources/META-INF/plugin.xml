@@ -41,6 +41,10 @@
         <completion.contributor language="JAVA"
                                 implementationClass="dev.khbd.lens4j.intellij.completion.LensPathCompletionContributor"/>
 
+        <postStartupActivity implementation="dev.khbd.lens4j.intellij.activity.CheckLens4jLatestVersionActivity"/>
+
+        <notificationGroup id="Lens4j plugin" displayType="BALLOON"/>
+
     </extensions>
 
 </idea-plugin>
