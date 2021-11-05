@@ -50,7 +50,8 @@ public class CheckLens4jLatestVersionActivity implements StartupActivity.DumbAwa
                                     version,
                                     Version.LATEST
                             ),
-                            NotificationType.WARNING
+                            NotificationType.WARNING,
+                            null
                     );
             Notifications.Bus.notify(notification, project);
         }
