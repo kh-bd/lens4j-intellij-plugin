@@ -26,6 +26,10 @@ intellij {
     plugins = ['com.intellij.java']
 }
 
+publishPlugin {
+    token = System.getenv("INTELLIJ_PUBLISH_TOKEN")
+}
+
 def loadHtml(String fileName) {
     file(fileName).text.replace('<html>', '').replace('</html>', '')
 }
