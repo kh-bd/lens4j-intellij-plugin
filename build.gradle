@@ -36,6 +36,7 @@ def baseVersion() {
 
 publishPlugin {
     token = System.getenv("INTELLIJ_PUBLISH_TOKEN")
+    channels = ['beta']
 }
 
 def loadHtml(String fileName) {
