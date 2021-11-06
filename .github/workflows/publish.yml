@@ -18,7 +18,7 @@ jobs:
     name: 'Publish with INTELLIJ ${{ matrix.intellijVersion }}'
     env:
       INTELLIJ_VERSION: ${{ matrix.intellijVersion }}
-      INTELLIJ_PUBLISH_TOKEN: ${{  }}
+      INTELLIJ_PUBLISH_TOKEN: ${{ secrets.INTELLIJ_PUBLISH_TOKEN }}
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 11
