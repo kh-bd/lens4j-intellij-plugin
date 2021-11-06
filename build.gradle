@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'dev.khbd.lens4j'
-version '0.1.2'
+version base_version + "_" + intellijVersion()
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
@@ -22,8 +22,12 @@ dependencies {
 }
 
 intellij {
-    version = System.getenv().getOrDefault('INTELLIJ_VERSION', intellij_version)
+    version = intellijVersion()
     plugins = ['com.intellij.java']
+}
+
+def intellijVersion() {
+    System.getenv().getOrDefault('INTELLIJ_VERSION', intellij_version)
 }
 
 publishPlugin {
