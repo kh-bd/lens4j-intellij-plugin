@@ -30,7 +30,7 @@ public class LensPathAnnotator extends AbstractNotBlankStringLiteralAnnotator {
                                          TextRange originalTextRange,
                                          AnnotationHolder holder) {
         PathParser parser = ApplicationManager.getApplication().getService(PathParser.class);
-        Path path = parser.parse(literalValue).getCorrectPathPrefix();
+        Path path = PathService.getInstance().getCorrectPathPrefix(parser.parse(literalValue));
         path.visit(new PathPartAnnotatorVisitor(originalTextRange, holder));
     }
 

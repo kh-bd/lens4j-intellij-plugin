@@ -11,7 +11,7 @@ import java.util.Objects;
  * Field resolver.
  *
  * <p>This resolver should be used only with correct path prefix. See
- * {@link Path#getCorrectPathPrefix()}
+ * {@link PathService#getCorrectPathPrefix(Path)}
  *
  * @author Sergei_Khadanovich
  */

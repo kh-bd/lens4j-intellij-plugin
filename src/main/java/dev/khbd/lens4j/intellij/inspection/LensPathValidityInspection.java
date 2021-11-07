@@ -117,8 +117,8 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
                                                           String pathStr,
                                                           boolean isOnTheFly) {
         PathParser parser = ApplicationManager.getApplication().getService(PathParser.class);
-        Path path = parser.parse(pathStr).getCorrectPathPrefix();
-        for (Path subPath : path.getAllSubPaths()) {
+        Path path = parser.parse(pathStr);
+        for (Path subPath : PathService.getInstance().getCorrectPathPrefixSubPaths(path)) {
             PsiFieldResolver resolver = new PsiFieldResolver(psiClass);
             subPath.visit(resolver);
             PsiField field = resolver.getResolvedField();

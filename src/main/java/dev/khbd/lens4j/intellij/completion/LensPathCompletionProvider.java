@@ -12,6 +12,7 @@ import dev.khbd.lens4j.intellij.common.LensPsiUtil;
 import dev.khbd.lens4j.intellij.common.path.Path;
 import dev.khbd.lens4j.intellij.common.path.PathParser;
 import dev.khbd.lens4j.intellij.common.path.PathPart;
+import dev.khbd.lens4j.intellij.common.path.PathService;
 import dev.khbd.lens4j.intellij.common.path.Property;
 import dev.khbd.lens4j.intellij.common.path.PsiFieldResolver;
 
@@ -32,7 +33,8 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
 
         PathParser parser = ApplicationManager.getApplication().getService(PathParser.class);
         Path path = parser.parse(pathStr);
-        if (!path.hasCorrectStructure()) {
+
+        if (!PathService.getInstance().hasCorrectStructure(path)) {
             return;
         }
 
