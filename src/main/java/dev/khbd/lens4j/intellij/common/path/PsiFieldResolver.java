@@ -2,6 +2,9 @@ package dev.khbd.lens4j.intellij.common.path;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
+import dev.khbd.lens4j.common.Path;
+import dev.khbd.lens4j.common.PathVisitor;
+import dev.khbd.lens4j.common.Property;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
 import lombok.RequiredArgsConstructor;
 
@@ -44,7 +47,7 @@ public class PsiFieldResolver implements PathVisitor {
             currentClass = resolvedPsiClass;
         }
 
-        field = LensPsiUtil.findField(currentClass, property.getProperty(), false)
+        field = LensPsiUtil.findField(currentClass, property.getName(), false)
                 .orElse(null);
 
         if (Objects.isNull(field)) {

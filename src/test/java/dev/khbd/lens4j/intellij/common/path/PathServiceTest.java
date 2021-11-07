@@ -2,6 +2,8 @@ package dev.khbd.lens4j.intellij.common.path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import dev.khbd.lens4j.common.Path;
+import dev.khbd.lens4j.common.PathParser;
 import org.testng.annotations.Test;
 
 /**

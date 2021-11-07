@@ -7,12 +7,12 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaToken;
 import com.intellij.util.ProcessingContext;
+import dev.khbd.lens4j.common.Path;
+import dev.khbd.lens4j.common.PathParser;
+import dev.khbd.lens4j.common.PathPart;
+import dev.khbd.lens4j.common.Property;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
-import dev.khbd.lens4j.intellij.common.path.Path;
-import dev.khbd.lens4j.intellij.common.path.PathParser;
-import dev.khbd.lens4j.intellij.common.path.PathPart;
 import dev.khbd.lens4j.intellij.common.path.PathService;
-import dev.khbd.lens4j.intellij.common.path.Property;
 import dev.khbd.lens4j.intellij.common.path.PsiFieldResolver;
 
 import java.util.List;
@@ -59,12 +59,12 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
             Property property = (Property) lastPart;
             if (resolver.isResolved()) {
                 // path is correct and fully resolved, but can exist more variants
-                resultSet.addAllElements(allFieldsStartsWithAsVariants(resolver.getResolvedClass(), property.getProperty()));
+                resultSet.addAllElements(allFieldsStartsWithAsVariants(resolver.getResolvedClass(), property.getName()));
                 return;
             }
 
             if (isResolved(path.removeLastPart(), enclosingClass)) {
-                resultSet.addAllElements(allFieldsStartsWithAsVariants(resolver.getResolvedClass(), property.getProperty()));
+                resultSet.addAllElements(allFieldsStartsWithAsVariants(resolver.getResolvedClass(), property.getName()));
                 return;
             }
         }

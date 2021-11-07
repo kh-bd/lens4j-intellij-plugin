@@ -11,13 +11,13 @@ import com.intellij.psi.PsiArrayInitializerMemberValue;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiLiteralValue;
+import dev.khbd.lens4j.common.Path;
+import dev.khbd.lens4j.common.PathParser;
+import dev.khbd.lens4j.common.Property;
 import dev.khbd.lens4j.core.annotations.GenLenses;
 import dev.khbd.lens4j.intellij.Lens4jBundle;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
-import dev.khbd.lens4j.intellij.common.path.Path;
-import dev.khbd.lens4j.intellij.common.path.PathParser;
 import dev.khbd.lens4j.intellij.common.path.PathService;
-import dev.khbd.lens4j.intellij.common.path.Property;
 import dev.khbd.lens4j.intellij.common.path.PsiFieldResolver;
 
 import java.util.Arrays;
@@ -138,7 +138,7 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
                 literalValue,
                 PathService.getInstance().getTextRange(property).shiftRight(1),
                 Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.property.not.exist",
-                        property.getProperty(), psiClass.getName()
+                        property.getName(), psiClass.getName()
                 ),
                 ProblemHighlightType.GENERIC_ERROR,
                 isOnTheFly,

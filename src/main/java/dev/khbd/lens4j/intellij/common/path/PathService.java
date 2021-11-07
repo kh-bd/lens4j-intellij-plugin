@@ -3,6 +3,12 @@ package dev.khbd.lens4j.intellij.common.path;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.util.TextRange;
+import dev.khbd.lens4j.common.Path;
+import dev.khbd.lens4j.common.PathPart;
+import dev.khbd.lens4j.common.PathPartKind;
+import dev.khbd.lens4j.common.PathVisitor;
+import dev.khbd.lens4j.common.Point;
+import dev.khbd.lens4j.common.Property;
 import lombok.NonNull;
 
 import java.util.ArrayList;
@@ -51,7 +57,7 @@ public final class PathService {
      * @return text range
      */
     public TextRange getTextRange(@NonNull Property property) {
-        return new TextRange(property.getStart(), property.getStart() + property.getProperty().length());
+        return new TextRange(property.getStart(), property.getStart() + property.getName().length());
     }
 
     /**

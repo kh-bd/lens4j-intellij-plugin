@@ -5,13 +5,13 @@ import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
+import dev.khbd.lens4j.common.Path;
+import dev.khbd.lens4j.common.PathParser;
+import dev.khbd.lens4j.common.PathVisitor;
+import dev.khbd.lens4j.common.Point;
+import dev.khbd.lens4j.common.Property;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
-import dev.khbd.lens4j.intellij.common.path.Path;
-import dev.khbd.lens4j.intellij.common.path.PathParser;
 import dev.khbd.lens4j.intellij.common.path.PathService;
-import dev.khbd.lens4j.intellij.common.path.PathVisitor;
-import dev.khbd.lens4j.intellij.common.path.Point;
-import dev.khbd.lens4j.intellij.common.path.Property;
 import lombok.RequiredArgsConstructor;
 
 /**

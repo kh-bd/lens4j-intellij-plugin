@@ -3,8 +3,8 @@ package dev.khbd.lens4j.intellij.reference;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import dev.khbd.lens4j.intellij.common.path.Path;
-import dev.khbd.lens4j.intellij.common.path.PathParser;
+import dev.khbd.lens4j.common.Path;
+import dev.khbd.lens4j.common.PathParser;
 import dev.khbd.lens4j.intellij.common.path.PathService;
 import dev.khbd.lens4j.intellij.reference.psi.LensPathPsiReference;
 
