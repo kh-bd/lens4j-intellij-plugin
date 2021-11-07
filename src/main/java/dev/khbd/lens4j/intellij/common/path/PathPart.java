@@ -1,7 +1,5 @@
 package dev.khbd.lens4j.intellij.common.path;
 
-import com.intellij.openapi.util.TextRange;
-
 /**
  * Base interface for all path parts.
  *
@@ -22,13 +20,6 @@ public interface PathPart {
      * @return part kind
      */
     PathPartKind getKind();
-
-    /**
-     * Return text range of current path inside original path.
-     *
-     * @return text range
-     */
-    TextRange getTextRange();
 
     /**
      * Compare kinds of current part and supplied one.

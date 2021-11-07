@@ -17,6 +17,7 @@ import dev.khbd.lens4j.intellij.Lens4jBundle;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
 import dev.khbd.lens4j.intellij.common.path.Path;
 import dev.khbd.lens4j.intellij.common.path.PathParser;
+import dev.khbd.lens4j.intellij.common.path.PathService;
 import dev.khbd.lens4j.intellij.common.path.Property;
 import dev.khbd.lens4j.intellij.common.path.PsiFieldResolver;
 
@@ -136,7 +137,7 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
         Property property = (Property) path.getLastPart();
         return manager.createProblemDescriptor(
                 literalValue,
-                property.getTextRange().shiftRight(1),
+                PathService.getInstance().getTextRange(property).shiftRight(1),
                 Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.property.not.exist",
                         property.getProperty(), psiClass.getName()
                 ),

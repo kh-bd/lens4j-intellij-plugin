@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElement;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
 import dev.khbd.lens4j.intellij.common.path.Path;
 import dev.khbd.lens4j.intellij.common.path.PathParser;
+import dev.khbd.lens4j.intellij.common.path.PathService;
 import dev.khbd.lens4j.intellij.common.path.PathVisitor;
 import dev.khbd.lens4j.intellij.common.path.Point;
 import dev.khbd.lens4j.intellij.common.path.Property;
@@ -41,16 +42,18 @@ public class LensPathAnnotator extends AbstractNotBlankStringLiteralAnnotator {
 
         @Override
         public void visitProperty(Property property) {
+            PathService pathService = PathService.getInstance();
             holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
-                    .range(property.getTextRange().shiftRight(originalElementRange.getStartOffset() + 1))
+                    .range(pathService.getTextRange(property).shiftRight(originalElementRange.getStartOffset() + 1))
                     .textAttributes(DefaultLanguageHighlighterColors.INSTANCE_FIELD)
                     .create();
         }
 
         @Override
         public void visitPoint(Point point) {
+            PathService pathService = PathService.getInstance();
             holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
-                    .range(point.getTextRange().shiftRight(originalElementRange.getStartOffset() + 1))
+                    .range(pathService.getTextRange(point).shiftRight(originalElementRange.getStartOffset() + 1))
                     .textAttributes(DefaultLanguageHighlighterColors.DOT)
                     .create();
         }

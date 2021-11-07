@@ -1,6 +1,5 @@
 package dev.khbd.lens4j.intellij.common.path;
 
-import com.intellij.openapi.util.TextRange;
 import lombok.Value;
 
 /**
@@ -19,10 +18,5 @@ public class Property implements PathPart {
     @Override
     public PathPartKind getKind() {
         return PathPartKind.PROPERTY;
-    }
-
-    @Override
-    public TextRange getTextRange() {
-        return new TextRange(start, start + property.length());
     }
 }
