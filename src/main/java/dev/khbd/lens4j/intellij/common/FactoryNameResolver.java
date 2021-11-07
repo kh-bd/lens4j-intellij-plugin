@@ -1,5 +1,6 @@
 package dev.khbd.lens4j.intellij.common;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiAnnotationMemberValue;
@@ -18,6 +19,10 @@ import java.util.Optional;
 public final class FactoryNameResolver {
 
     private static final String FACTORY_NAME_SUFFIX = "Lenses";
+
+    public static FactoryNameResolver getInstance() {
+        return ApplicationManager.getApplication().getService(FactoryNameResolver.class);
+    }
 
     /**
      * Resolve factory name or infer default factory name.

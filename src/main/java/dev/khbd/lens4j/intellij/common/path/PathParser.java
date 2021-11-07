@@ -1,5 +1,6 @@
 package dev.khbd.lens4j.intellij.common.path;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 
 /**
@@ -9,6 +10,10 @@ import com.intellij.openapi.components.Service;
  */
 @Service
 public final class PathParser {
+
+    public static PathParser getInstance() {
+        return ApplicationManager.getApplication().getService(PathParser.class);
+    }
 
     /**
      * Parse string into {@link Path} instance.

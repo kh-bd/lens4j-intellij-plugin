@@ -1,6 +1,5 @@
 package dev.khbd.lens4j.intellij.reference;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
@@ -18,7 +17,7 @@ class LensPathPsiReferenceProvider extends AbstractNotBlankStringLiteralReferenc
     protected PsiReference[] getReferences(PsiClass enclosingClass,
                                            PsiElement originalElement,
                                            String pathStr) {
-        PathParser parser = ApplicationManager.getApplication().getService(PathParser.class);
+        PathParser parser = PathParser.getInstance();
 
         Path path = parser.parse(pathStr);
 

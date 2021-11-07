@@ -1,6 +1,5 @@
 package dev.khbd.lens4j.intellij.reference.psi;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
@@ -28,8 +27,7 @@ public class FactoryClassFieldPsiReference extends PsiReferenceBase<PsiElement> 
 
     @Override
     public PsiElement resolve() {
-        FactoryNameResolver factoryNameResolver =
-                ApplicationManager.getApplication().getService(FactoryNameResolver.class);
+        FactoryNameResolver factoryNameResolver = FactoryNameResolver.getInstance();
 
         return factoryNameResolver.resolveFactoryName(enclosingClass)
                 .flatMap(factoryName -> LensPsiUtil.findTheSamePackageClass(enclosingClass, factoryName))

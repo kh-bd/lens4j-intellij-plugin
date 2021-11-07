@@ -4,7 +4,6 @@ import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaToken;
 import com.intellij.util.ProcessingContext;
@@ -31,7 +30,7 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
         PsiJavaToken token = (PsiJavaToken) parameters.getOriginalPosition();
         String pathStr = token.getText().substring(1, token.getText().length() - 1);
 
-        PathParser parser = ApplicationManager.getApplication().getService(PathParser.class);
+        PathParser parser = PathParser.getInstance();
         Path path = parser.parse(pathStr);
 
         if (!PathService.getInstance().hasCorrectStructure(path)) {

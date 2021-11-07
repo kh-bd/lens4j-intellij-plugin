@@ -5,7 +5,6 @@ import com.intellij.codeInspection.InspectionManager;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.codeInspection.ProblemHighlightType;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiAnnotationMemberValue;
 import com.intellij.psi.PsiArrayInitializerMemberValue;
@@ -116,7 +115,7 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
                                                           PsiLiteralValue literalValue,
                                                           String pathStr,
                                                           boolean isOnTheFly) {
-        PathParser parser = ApplicationManager.getApplication().getService(PathParser.class);
+        PathParser parser = PathParser.getInstance();
         Path path = parser.parse(pathStr);
         for (Path subPath : PathService.getInstance().getCorrectPathPrefixSubPaths(path)) {
             PsiFieldResolver resolver = new PsiFieldResolver(psiClass);
