@@ -67,7 +67,7 @@ public class LensPathAnnotator extends AbstractNotBlankStringLiteralAnnotator {
                     .create();
             holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
                     .range(toGlobalTextRange(pathService.getMethodParenthesesTextRange(method)))
-                    .textAttributes(DefaultLanguageHighlighterColors.INSTANCE_METHOD)
+                    .textAttributes(DefaultLanguageHighlighterColors.PARENTHESES)
                     .create();
         }
 
