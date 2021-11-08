@@ -1,6 +1,7 @@
 package dev.khbd.lens4j.intellij.activity;
 
 import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.module.Module;
@@ -51,7 +52,7 @@ public class CheckLens4jLatestVersionActivity implements StartupActivity.DumbAwa
                                     Version.LATEST
                             ),
                             NotificationType.WARNING,
-                            null
+                            NotificationListener.URL_OPENING_LISTENER
                     );
             Notifications.Bus.notify(notification, project);
         }
