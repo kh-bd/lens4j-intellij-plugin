@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.khbd.lens4j.common.Path;
 import dev.khbd.lens4j.common.PathParser;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -14,9 +15,23 @@ public class PathServiceTest {
     private final PathParser pathParser = new PathParser();
     private final PathService service = new PathService();
 
-    @Test
-    public void getCorrectPrefix_pathIsValid_returnTheSame() {
-        Path path = pathParser.parse("pr1.pr2.pr3");
+    @DataProvider
+    public static Object[][] validPathDataProvider() {
+        return new Object[][]{
+                {"pr1.pr2.pr3"},
+                {"pr1.pr2.pr3."},
+                {"pr1().pr2().pr3()"},
+                {"pr1().pr2().pr3()."},
+                {"pr1.pr2().pr3"},
+                {"pr1.pr2.pr3()"},
+                {"pr1().pr2.pr3"},
+                {"pr1().pr2.pr3."}
+        };
+    }
+
+    @Test(dataProvider = "validPathDataProvider")
+    public void getCorrectPrefix_pathIsValid_returnTheSame(String str) {
+        Path path = pathParser.parse(str);
 
         Path result = service.getCorrectPathPrefix(path);
 
@@ -39,15 +54,6 @@ public class PathServiceTest {
         Path result = service.getCorrectPathPrefix(path);
 
         assertThat(result).isEqualTo(new Path());
-    }
-
-    @Test
-    public void getCorrectPrefix_pathEndsWithPoint_returnWholeExceptLastPoint() {
-        Path path = pathParser.parse("pr1.pr2.");
-
-        Path result = service.getCorrectPathPrefix(path);
-
-        assertThat(result).isEqualTo(pathParser.parse("pr1.pr2."));
     }
 
     // hasCorrectStructure
@@ -80,16 +86,9 @@ public class PathServiceTest {
         assertThat(service.hasCorrectStructure(path)).isFalse();
     }
 
-    @Test
-    public void hasCorrectStructure_endsWithPoint_returnTrue() {
-        Path path = pathParser.parse("pr1.pr2.");
-
-        assertThat(service.hasCorrectStructure(path)).isTrue();
-    }
-
-    @Test
-    public void hasCorrectStructure_severalProperties_returnTrue() {
-        Path path = pathParser.parse("pr1.pr2.pr3.pr4");
+    @Test(dataProvider = "validPathDataProvider")
+    public void hasCorrectStructure_severalProperties_returnTrue(String str) {
+        Path path = pathParser.parse(str);
 
         assertThat(service.hasCorrectStructure(path)).isTrue();
     }

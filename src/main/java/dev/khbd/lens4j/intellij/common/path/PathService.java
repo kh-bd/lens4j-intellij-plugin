@@ -3,6 +3,7 @@ package dev.khbd.lens4j.intellij.common.path;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.util.TextRange;
+import dev.khbd.lens4j.common.Method;
 import dev.khbd.lens4j.common.Path;
 import dev.khbd.lens4j.common.PathPart;
 import dev.khbd.lens4j.common.PathPartKind;
@@ -33,9 +34,11 @@ public final class PathService {
     public TextRange getTextRange(@NonNull PathPart part) {
         PathPartKind kind = part.getKind();
         if (kind == PathPartKind.POINT) {
-            return getTextRange((Point) part);
+            return getPointTextRange((Point) part);
         } else if (kind == PathPartKind.PROPERTY) {
-            return getTextRange((Property) part);
+            return getPropertyNameTextRange((Property) part);
+        } else if (kind == PathPartKind.METHOD) {
+            return getMethodNameTextRange((Method) part);
         }
         throw new IllegalArgumentException("Unsupported path part");
     }
@@ -46,7 +49,7 @@ public final class PathService {
      * @param point path point
      * @return text range
      */
-    public TextRange getTextRange(@NonNull Point point) {
+    public TextRange getPointTextRange(@NonNull Point point) {
         return new TextRange(point.getPosition(), point.getPosition() + 1);
     }
 
@@ -56,8 +59,29 @@ public final class PathService {
      * @param property path property
      * @return text range
      */
-    public TextRange getTextRange(@NonNull Property property) {
+    public TextRange getPropertyNameTextRange(@NonNull Property property) {
         return new TextRange(property.getStart(), property.getStart() + property.getName().length());
+    }
+
+    /**
+     * Evaluate text range for specified method.
+     *
+     * @param method path method
+     * @return text range
+     */
+    public TextRange getMethodNameTextRange(@NonNull Method method) {
+        return new TextRange(method.getStart(), method.getStart() + method.getName().length());
+    }
+
+    /**
+     * Evaluate text range of parentheses for specified method.
+     *
+     * @param method path method
+     * @return parentheses text range
+     */
+    public TextRange getMethodParenthesesTextRange(@NonNull Method method) {
+        int start = method.getStart() + method.getName().length();
+        return new TextRange(start, start + 2);
     }
 
     /**
@@ -81,40 +105,47 @@ public final class PathService {
 
         @Override
         public void visitPoint(Point point) {
-            tryCollect(point);
-        }
-
-        @Override
-        public void visitProperty(Property property) {
-            tryCollect(property);
-        }
-
-        public Path getPathPrefix() {
-            return result;
-        }
-
-        private void tryCollect(PathPart nextPart) {
             if (fail) {
                 return;
             }
             if (result.isEmpty()) {
-                collectFirst(nextPart);
-            } else {
-                PathPart lastPart = result.getLastPart();
-                if (lastPart.hasTheSameKindWith(nextPart)) {
-                    fail();
-                } else {
-                    result.addPart(nextPart);
-                }
-            }
-        }
-
-        private void collectFirst(PathPart nextPart) {
-            if (nextPart.getKind() == PathPartKind.POINT) {
                 fail();
                 return;
             }
-            result.addPart(nextPart);
+            if (result.getLastPart().isPoint()) {
+                fail();
+                return;
+            }
+            result.addPart(point);
+        }
+
+        @Override
+        public void visitProperty(Property property) {
+            visitNamed(property);
+        }
+
+        @Override
+        public void visitMethod(Method method) {
+            visitNamed(method);
+        }
+
+        private void visitNamed(PathPart part) {
+            if (fail) {
+                return;
+            }
+            if (result.isEmpty()) {
+                result.addPart(part);
+                return;
+            }
+            if (!result.getLastPart().isPoint()) {
+                fail();
+                return;
+            }
+            result.addPart(part);
+        }
+
+        public Path getPathPrefix() {
+            return result;
         }
 
         private void fail() {

@@ -8,56 +8,58 @@ import org.testng.annotations.Test;
  */
 public class GenLensesAnnotationTest extends BaseIntellijTest {
 
-    @Override
-    protected String getTestDataPath() {
-        return "src/test/resources/testData/annotator";
+    @Test
+    public void checkHighlighting_factoryAndLensNameAreFilled_annotateThem() {
+        fixture.configureByFile("annotator/Entity.java");
+
+        fixture.checkHighlighting(true, true, true);
     }
 
     @Test
-    public void checkHighlighting_factoryAndLensNameAreFilled_annotateThem() {
-        fixture.configureByFile("Entity.java");
+    public void checkHighlighting_pathContainsMethods_annotateThem() {
+        fixture.configureByFile("annotator/PathWithMethods.java");
 
         fixture.checkHighlighting(true, true, true);
     }
 
     @Test
     public void checkHighlighting_factoryAndLensNameAreFilledAndClassIsPackagePrivate_annotateThem() {
-        fixture.configureByFile("PackageEntity.java");
+        fixture.configureByFile("annotator/PackageEntity.java");
 
         fixture.checkHighlighting(true, true, true);
     }
 
     @Test
     public void checkHighlighting_innerClass_annotateThem() {
-        fixture.configureByFile("OuterInner.java");
+        fixture.configureByFile("annotator/OuterInner.java");
 
         fixture.checkHighlighting(true, true, true);
     }
 
     @Test
     public void checkHighlighting_nestedClass_annotateThem() {
-        fixture.configureByFile("OuterNested.java");
+        fixture.configureByFile("annotator/OuterNested.java");
 
         fixture.checkHighlighting(true, true, true);
     }
 
     @Test
     public void checkHighlighting_emptyFactory_annotateThem() {
-        fixture.configureByFile("EmptyFactoryEntity.java");
+        fixture.configureByFile("annotator/EmptyFactoryEntity.java");
 
         fixture.checkHighlighting(true, true, true);
     }
 
     @Test
     public void checkHighlighting_emptyLensName_annotateThem() {
-        fixture.configureByFile("EmptyLensNameEntity.java");
+        fixture.configureByFile("annotator/EmptyLensNameEntity.java");
 
         fixture.checkHighlighting(true, true, true);
     }
 
     @Test
     public void checkHighlighting_pathIsEmpty_notAnnotateIt() {
-        fixture.configureByFile("EntityWithEmptyPath.java");
+        fixture.configureByFile("annotator/EntityWithEmptyPath.java");
 
         fixture.checkHighlighting(true, true, true);
     }
