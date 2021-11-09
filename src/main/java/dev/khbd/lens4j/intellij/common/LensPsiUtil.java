@@ -10,6 +10,7 @@ import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiLiteralValue;
+import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -87,6 +88,25 @@ public final class LensPsiUtil {
         PsiField[] fields = psiClass.getAllFields();
         return Arrays.stream(fields)
                 .filter(field -> isStatic == staticPredicate.test(field))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Find all methods with specified name.
+     *
+     * @param psiClass class
+     * @param name     method name
+     * @param isStatic static or non-static methods should be found
+     * @return found methods
+     */
+    public static List<PsiMethod> findAllMethodsWithName(PsiClass psiClass, String name, boolean isStatic) {
+        Predicate<PsiMethod> staticPredicate =
+                method -> method.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
+
+        PsiMethod[] methods = psiClass.getAllMethods();
+        return Arrays.stream(methods)
+                .filter(method -> isStatic == staticPredicate.test(method))
+                .filter(method -> method.getName().equals(name))
                 .collect(Collectors.toList());
     }
 

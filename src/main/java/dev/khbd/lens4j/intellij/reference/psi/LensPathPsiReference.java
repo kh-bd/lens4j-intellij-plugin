@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
 import dev.khbd.lens4j.common.Path;
 import dev.khbd.lens4j.intellij.common.path.PathService;
-import dev.khbd.lens4j.intellij.common.path.PsiFieldResolver;
+import dev.khbd.lens4j.intellij.common.path.PsiMemberResolver;
 
 /**
  * @author Sergei_Khadanovich
@@ -26,7 +26,7 @@ public class LensPathPsiReference extends PsiReferenceBase<PsiElement> {
 
     @Override
     public PsiElement resolve() {
-        return PsiFieldResolver.resolveField(path, rootClass);
+        return PsiMemberResolver.resolveMember(path, rootClass);
     }
 
     private static TextRange getLastPartRange(Path path) {
