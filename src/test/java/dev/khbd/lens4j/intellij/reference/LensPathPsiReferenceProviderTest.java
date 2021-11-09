@@ -105,4 +105,40 @@ public class LensPathPsiReferenceProviderTest extends BaseIntellijTest {
 
         assertThat(method).isNull();
     }
+
+    @Test
+    public void resolve_methodIsStatic_refToMethodCanNotBeResolved() throws Exception {
+        fixture.configureByFiles("reference/path/correct/MethodIsStaticPayment.java",
+                "reference/path/correct/Currency.java",
+                "reference/path/correct/Account.java"
+        );
+
+        PsiElement method = read(() -> fixture.getReferenceAtCaretPositionWithAssertion().resolve());
+
+        assertThat(method).isNull();
+    }
+
+    @Test
+    public void resolve_methodIsPrivate_refToMethodCanNotBeResolved() throws Exception {
+        fixture.configureByFiles("reference/path/correct/MethodIsPrivatePayment.java",
+                "reference/path/correct/Currency.java",
+                "reference/path/correct/Account.java"
+        );
+
+        PsiElement method = read(() -> fixture.getReferenceAtCaretPositionWithAssertion().resolve());
+
+        assertThat(method).isNull();
+    }
+
+    @Test
+    public void resolve_methodHasArguments_refToMethodCanNotBeResolved() throws Exception {
+        fixture.configureByFiles("reference/path/correct/MethodHasArgumentsPayment.java",
+                "reference/path/correct/Currency.java",
+                "reference/path/correct/Account.java"
+        );
+
+        PsiElement method = read(() -> fixture.getReferenceAtCaretPositionWithAssertion().resolve());
+
+        assertThat(method).isNull();
+    }
 }
