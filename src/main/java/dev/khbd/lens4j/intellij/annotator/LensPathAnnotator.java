@@ -5,6 +5,7 @@ import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
+import dev.khbd.lens4j.common.Method;
 import dev.khbd.lens4j.common.Path;
 import dev.khbd.lens4j.common.PathParser;
 import dev.khbd.lens4j.common.PathVisitor;
@@ -43,7 +44,7 @@ public class LensPathAnnotator extends AbstractNotBlankStringLiteralAnnotator {
         public void visitProperty(Property property) {
             PathService pathService = PathService.getInstance();
             holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
-                    .range(pathService.getTextRange(property).shiftRight(originalElementRange.getStartOffset() + 1))
+                    .range(toGlobalTextRange(pathService.getPropertyNameTextRange(property)))
                     .textAttributes(DefaultLanguageHighlighterColors.INSTANCE_FIELD)
                     .create();
         }
@@ -52,9 +53,26 @@ public class LensPathAnnotator extends AbstractNotBlankStringLiteralAnnotator {
         public void visitPoint(Point point) {
             PathService pathService = PathService.getInstance();
             holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
-                    .range(pathService.getTextRange(point).shiftRight(originalElementRange.getStartOffset() + 1))
+                    .range(toGlobalTextRange(pathService.getPointTextRange(point)))
                     .textAttributes(DefaultLanguageHighlighterColors.DOT)
                     .create();
+        }
+
+        @Override
+        public void visitMethod(Method method) {
+            PathService pathService = PathService.getInstance();
+            holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+                    .range(toGlobalTextRange(pathService.getMethodNameTextRange(method)))
+                    .textAttributes(DefaultLanguageHighlighterColors.INSTANCE_METHOD)
+                    .create();
+            holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+                    .range(toGlobalTextRange(pathService.getMethodParenthesesTextRange(method)))
+                    .textAttributes(DefaultLanguageHighlighterColors.PARENTHESES)
+                    .create();
+        }
+
+        private TextRange toGlobalTextRange(TextRange textRange) {
+            return textRange.shiftRight(originalElementRange.getStartOffset() + 1);
         }
     }
 }

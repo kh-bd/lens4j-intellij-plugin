@@ -136,7 +136,7 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
         Property property = (Property) path.getLastPart();
         return manager.createProblemDescriptor(
                 literalValue,
-                PathService.getInstance().getTextRange(property).shiftRight(1),
+                PathService.getInstance().getPropertyNameTextRange(property).shiftRight(1),
                 Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.property.not.exist",
                         property.getName(), psiClass.getName()
                 ),
