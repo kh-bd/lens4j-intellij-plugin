@@ -83,17 +83,4 @@ public class PsiFieldResolver implements PathVisitor {
     public PsiClass getResolvedClass() {
         return currentClass;
     }
-
-    /**
-     * Resolve field from root class.
-     *
-     * @param path      path to field
-     * @param rootClass root class
-     * @return resolved field or {@literal null} if any path part was not resolved
-     */
-    public static PsiField resolveField(Path path, PsiClass rootClass) {
-        PsiFieldResolver resolver = new PsiFieldResolver(rootClass);
-        path.visit(resolver);
-        return resolver.getResolvedField();
-    }
 }
