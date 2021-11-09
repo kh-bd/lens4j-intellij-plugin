@@ -198,7 +198,16 @@ public final class PathService {
 
         @Override
         public void visitProperty(Property property) {
-            lastPath.addPart(property);
+            visitNamed(property);
+        }
+
+        @Override
+        public void visitMethod(Method method) {
+            visitNamed(method);
+        }
+
+        private void visitNamed(PathPart part) {
+            lastPath.addPart(part);
             result.add(lastPath.copy());
         }
 
