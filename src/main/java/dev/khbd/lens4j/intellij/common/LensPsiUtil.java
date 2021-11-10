@@ -69,7 +69,7 @@ public final class LensPsiUtil {
     @SafeVarargs
     public static List<PsiField> findFields(PsiClass psiClass,
                                             Predicate<? super PsiField>... predicates) {
-        return findElements(psiClass, PsiClass::getFields, predicates);
+        return findElements(psiClass, PsiClass::getAllFields, predicates);
     }
 
     /**
@@ -117,7 +117,7 @@ public final class LensPsiUtil {
     @SafeVarargs
     public static List<PsiMethod> findMethods(PsiClass psiClass,
                                               Predicate<? super PsiMethod>... predicates) {
-        return findElements(psiClass, PsiClass::getMethods, predicates);
+        return findElements(psiClass, PsiClass::getAllMethods, predicates);
     }
 
     /**
