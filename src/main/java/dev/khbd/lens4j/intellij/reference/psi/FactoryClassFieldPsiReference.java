@@ -6,6 +6,7 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiReferenceBase;
 import dev.khbd.lens4j.intellij.common.FactoryNameResolver;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
+import dev.khbd.lens4j.intellij.common.Predicates;
 
 import java.util.Optional;
 
@@ -36,6 +37,7 @@ public class FactoryClassFieldPsiReference extends PsiReferenceBase<PsiElement> 
     }
 
     private Optional<PsiField> resolveStaticField(PsiClass psiClass) {
-        return LensPsiUtil.findField(psiClass, lensName, true);
+        return LensPsiUtil.findField(psiClass, Predicates.isStatic(true),
+                Predicates.nameEquals(lensName));
     }
 }

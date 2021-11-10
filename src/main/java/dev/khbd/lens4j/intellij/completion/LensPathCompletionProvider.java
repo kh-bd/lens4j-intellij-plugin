@@ -12,6 +12,7 @@ import dev.khbd.lens4j.common.PathParser;
 import dev.khbd.lens4j.common.PathPart;
 import dev.khbd.lens4j.common.Property;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
+import dev.khbd.lens4j.intellij.common.Predicates;
 import dev.khbd.lens4j.intellij.common.path.PathService;
 import dev.khbd.lens4j.intellij.common.path.PsiFieldResolver;
 
@@ -83,7 +84,7 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
     }
 
     private List<LookupElementBuilder> allFieldsAsVariants(PsiClass enclosingClass) {
-        return LensPsiUtil.findAllFields(enclosingClass, false)
+        return LensPsiUtil.findFields(enclosingClass, Predicates.isStatic(false))
                 .stream()
                 .map(LookupElementBuilder::create)
                 .collect(Collectors.toList());
@@ -91,9 +92,8 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
     }
 
     private List<LookupElementBuilder> allFieldsStartsWithAsVariants(PsiClass enclosingClass, String prefix) {
-        return LensPsiUtil.findAllFields(enclosingClass, false)
+        return LensPsiUtil.findFields(enclosingClass, Predicates.isStatic(false), Predicates.nameStarts(prefix))
                 .stream()
-                .filter(field -> field.getName().startsWith(prefix))
                 .map(LookupElementBuilder::create)
                 .collect(Collectors.toList());
     }

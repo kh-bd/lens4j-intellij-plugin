@@ -11,7 +11,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiLiteralValue;
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiUtil;
@@ -23,6 +22,7 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -60,54 +60,77 @@ public final class LensPsiUtil {
     }
 
     /**
-     * Find field with specified name.
+     * Find all fields by predicates.
      *
-     * @param psiClass  class
-     * @param fieldName field name
-     * @param isStatic  static or non-static field should be found
-     * @return found field or null
+     * @param psiClass   class
+     * @param predicates field predicates
+     * @return fields
      */
-    public static Optional<PsiField> findField(PsiClass psiClass, String fieldName, boolean isStatic) {
-        return findAllFields(psiClass, isStatic)
-                .stream()
-                .filter(field -> field.getName().equals(fieldName))
-                .findFirst();
+    @SafeVarargs
+    public static List<PsiField> findFields(PsiClass psiClass,
+                                            Predicate<? super PsiField>... predicates) {
+        return findElements(psiClass, PsiClass::getFields, predicates);
     }
 
     /**
-     * Find all fields.
+     * Find all elements by predicates.
      *
-     * @param psiClass class
-     * @param isStatic static or non-static field should be found
-     * @return found fields
+     * @param psiClass   class
+     * @param predicates element predicates
+     * @return elements
      */
-    public static List<PsiField> findAllFields(PsiClass psiClass, boolean isStatic) {
-        Predicate<PsiField> staticPredicate =
-                field -> field.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
-
-        PsiField[] fields = psiClass.getAllFields();
-        return Arrays.stream(fields)
-                .filter(field -> isStatic == staticPredicate.test(field))
+    @SafeVarargs
+    private static <M extends PsiElement> List<M> findElements(PsiClass psiClass,
+                                                               Function<? super PsiClass, M[]> extractor,
+                                                               Predicate<? super M>... predicates) {
+        Predicate<? super M> predicate =
+                Arrays.stream(predicates)
+                        .reduce((p1, p2) -> f -> p1.test(f) && p2.test(f))
+                        .orElse(f -> true);
+        M[] elements = extractor.apply(psiClass);
+        return Arrays.stream(elements)
+                .filter(predicate)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Find all methods with specified name.
-     *
-     * @param psiClass class
-     * @param name     method name
-     * @param isStatic static or non-static methods should be found
-     * @return found methods
-     */
-    public static List<PsiMethod> findAllMethodsWithName(PsiClass psiClass, String name, boolean isStatic) {
-        Predicate<PsiMethod> staticPredicate =
-                method -> method.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
 
-        PsiMethod[] methods = psiClass.getAllMethods();
-        return Arrays.stream(methods)
-                .filter(method -> isStatic == staticPredicate.test(method))
-                .filter(method -> method.getName().equals(name))
-                .collect(Collectors.toList());
+    /**
+     * Find field by predicates.
+     *
+     * @param psiClass   class
+     * @param predicates field predicates
+     * @return field
+     */
+    @SafeVarargs
+    public static Optional<PsiField> findField(PsiClass psiClass,
+                                               Predicate<? super PsiField>... predicates) {
+        return findFields(psiClass, predicates).stream().findFirst();
+    }
+
+    /**
+     * Find all methods by predicates.
+     *
+     * @param psiClass   class
+     * @param predicates method predicates
+     * @return methods
+     */
+    @SafeVarargs
+    public static List<PsiMethod> findMethods(PsiClass psiClass,
+                                              Predicate<? super PsiMethod>... predicates) {
+        return findElements(psiClass, PsiClass::getMethods, predicates);
+    }
+
+    /**
+     * Find method by predicates.
+     *
+     * @param psiClass   class
+     * @param predicates method predicates
+     * @return method
+     */
+    @SafeVarargs
+    public static Optional<PsiMethod> findMethod(PsiClass psiClass,
+                                                 Predicate<? super PsiMethod>... predicates) {
+        return findMethods(psiClass, predicates).stream().findFirst();
     }
 
     /**

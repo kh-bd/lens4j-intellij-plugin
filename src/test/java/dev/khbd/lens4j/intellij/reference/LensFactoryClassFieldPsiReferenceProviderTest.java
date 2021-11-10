@@ -8,6 +8,7 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiReference;
 import dev.khbd.lens4j.intellij.BaseIntellijTest;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
+import dev.khbd.lens4j.intellij.common.Predicates;
 import org.testng.annotations.Test;
 
 /**
@@ -46,7 +47,7 @@ public class LensFactoryClassFieldPsiReferenceProviderTest extends BaseIntellijT
         assertThat(lensField).isNotNull();
         PsiField expectedField = read(() -> {
             PsiClass factoryClass = fixture.findClass("reference.factory_field.field_found.PaymentLenses");
-            return LensPsiUtil.findField(factoryClass, "NAME_READ_LENS", true).get();
+            return LensPsiUtil.findField(factoryClass, Predicates.nameEquals("NAME_READ_LENS")).get();
         });
         assertThat(lensField).isEqualTo(expectedField);
     }
@@ -60,7 +61,7 @@ public class LensFactoryClassFieldPsiReferenceProviderTest extends BaseIntellijT
         assertThat(lensField).isNotNull();
         PsiField expectedField = read(() -> {
             PsiClass factoryClass = fixture.findClass("reference.factory_field.factory_name_empty.PaymentLenses");
-            return LensPsiUtil.findField(factoryClass, "NAME_READ_LENS", true).get();
+            return LensPsiUtil.findField(factoryClass, Predicates.nameEquals("NAME_READ_LENS")).get();
         });
         assertThat(lensField).isEqualTo(expectedField);
     }

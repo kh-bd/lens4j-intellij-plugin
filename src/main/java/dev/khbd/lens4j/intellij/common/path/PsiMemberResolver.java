@@ -5,7 +5,6 @@ import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMember;
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.util.PsiTypesUtil;
 import dev.khbd.lens4j.common.Method;
@@ -14,11 +13,11 @@ import dev.khbd.lens4j.common.PathPart;
 import dev.khbd.lens4j.common.PathVisitor;
 import dev.khbd.lens4j.common.Property;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
+import dev.khbd.lens4j.intellij.common.Predicates;
 import lombok.Getter;
 import lombok.Value;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -53,8 +52,8 @@ public class PsiMemberResolver implements PathVisitor {
             return;
         }
 
-        PsiField field = LensPsiUtil.findField(psiClass, property.getName(), false)
-                .orElse(null);
+        PsiField field = LensPsiUtil.findField(psiClass, Predicates.isStatic(false),
+                Predicates.nameEquals(property.getName())).orElse(null);
 
         if (Objects.isNull(field)) {
             fail(property);
@@ -96,13 +95,9 @@ public class PsiMemberResolver implements PathVisitor {
     }
 
     private PsiMethod findMethod(PsiClass psiClass, Method method) {
-        List<PsiMethod> methods = LensPsiUtil.findAllMethodsWithName(psiClass, method.getName(), false);
-
-        return methods.stream()
-                .filter(m -> !m.hasParameters())
-                .filter(m -> !PsiType.VOID.equals(m.getReturnType()))
-                .filter(m -> !m.getModifierList().hasExplicitModifier(PsiModifier.PRIVATE))
-                .findFirst()
+        return LensPsiUtil.findMethod(psiClass, Predicates.isStatic(false),
+                        Predicates.APPLICABLE_METHOD,
+                        Predicates.nameEquals(method.getName()))
                 .orElse(null);
     }
 
