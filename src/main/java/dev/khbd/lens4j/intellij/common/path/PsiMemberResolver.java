@@ -15,7 +15,9 @@ import dev.khbd.lens4j.common.PathVisitor;
 import dev.khbd.lens4j.common.Property;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
 import lombok.Getter;
+import lombok.Value;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,24 +27,11 @@ import java.util.Objects;
 public class PsiMemberResolver implements PathVisitor {
 
     public PsiMemberResolver(PsiClass rootClass) {
-        this.lastResolvedType = PsiTypesUtil.getClassType(rootClass);
+        this.rootClassType = PsiTypesUtil.getClassType(rootClass);
     }
 
-    /**
-     * Last resolved member can be null. It can be in such cases:
-     * <ul>
-     * <li>Path is correct, but no one part has been resolved yet.
-     * <li>Path is fully incorrect, first part was not resolved.
-     */
-    @Getter
-    private PsiMember lastResolvedMember;
-
-    /**
-     * Last resolved type can not be null. It contains last resolved member type or, if
-     * no one part has been resolved yet, contains root class type.
-     */
-    @Getter
-    private PsiType lastResolvedType;
+    private final PsiClassType rootClassType;
+    private final LinkedList<ResolvedPart> resolvingHistory = new LinkedList<>();
 
     private boolean fail;
 
@@ -72,8 +61,7 @@ public class PsiMemberResolver implements PathVisitor {
             return;
         }
 
-        lastResolvedType = field.getType();
-        lastResolvedMember = field;
+        resolvingHistory.addLast(new ResolvedPart(property, field, field.getType()));
     }
 
     @Override
@@ -95,11 +83,11 @@ public class PsiMemberResolver implements PathVisitor {
             return;
         }
 
-        lastResolvedType = psiMethod.getReturnType();
-        lastResolvedMember = psiMethod;
+        resolvingHistory.addLast(new ResolvedPart(method, psiMethod, psiMethod.getReturnType()));
     }
 
     private PsiClass getLastResolvedClass() {
+        PsiType lastResolvedType = getLastResolvedType();
         if (!(lastResolvedType instanceof PsiClassType)) {
             return null;
         }
@@ -129,7 +117,7 @@ public class PsiMemberResolver implements PathVisitor {
      * @return {@literal true} if path was resolved and {@literal false} otherwise
      */
     public boolean isResolved() {
-        return Objects.nonNull(lastResolvedMember) && !fail;
+        return !(fail || resolvingHistory.isEmpty());
     }
 
     /**
@@ -140,7 +128,17 @@ public class PsiMemberResolver implements PathVisitor {
         if (fail) {
             return null;
         }
-        return lastResolvedMember;
+        return resolvingHistory.getLast().getMember();
+    }
+
+    /**
+     * Return last resolved type or root class type if nothing was resolved.
+     */
+    public PsiType getLastResolvedType() {
+        if (resolvingHistory.isEmpty()) {
+            return rootClassType;
+        }
+        return resolvingHistory.getLast().getType();
     }
 
     /**
@@ -154,5 +152,12 @@ public class PsiMemberResolver implements PathVisitor {
         PsiMemberResolver resolver = new PsiMemberResolver(rootClass);
         path.visit(resolver);
         return resolver.getResolvedMember();
+    }
+
+    @Value
+    private static class ResolvedPart {
+        PathPart part;
+        PsiMember member;
+        PsiType type;
     }
 }
