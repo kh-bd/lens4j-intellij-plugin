@@ -30,7 +30,7 @@ public class PsiMemberResolver implements PathVisitor {
     }
 
     private final PsiClassType rootClassType;
-    private final LinkedList<ResolvedPart> resolvingHistory = new LinkedList<>();
+    private final LinkedList<ResolvedPart> resolvedHistory = new LinkedList<>();
 
     private boolean fail;
 
@@ -60,7 +60,7 @@ public class PsiMemberResolver implements PathVisitor {
             return;
         }
 
-        resolvingHistory.addLast(new ResolvedPart(property, field, field.getType()));
+        resolvedHistory.addLast(new ResolvedPart(property, field, field.getType()));
     }
 
     @Override
@@ -82,16 +82,11 @@ public class PsiMemberResolver implements PathVisitor {
             return;
         }
 
-        resolvingHistory.addLast(new ResolvedPart(method, psiMethod, psiMethod.getReturnType()));
+        resolvedHistory.addLast(new ResolvedPart(method, psiMethod, psiMethod.getReturnType()));
     }
 
     private PsiClass getLastResolvedClass() {
-        PsiType lastResolvedType = getLastResolvedType();
-        if (!(lastResolvedType instanceof PsiClassType)) {
-            return null;
-        }
-        PsiClassType classType = (PsiClassType) lastResolvedType;
-        return classType.resolve();
+        return LensPsiUtil.resolvePsiClassByType(getLastResolvedType()).orElse(null);
     }
 
     private PsiMethod findMethod(PsiClass psiClass, Method method) {
@@ -112,7 +107,7 @@ public class PsiMemberResolver implements PathVisitor {
      * @return {@literal true} if path was resolved and {@literal false} otherwise
      */
     public boolean isResolved() {
-        return !(fail || resolvingHistory.isEmpty());
+        return !(fail || resolvedHistory.isEmpty());
     }
 
     /**
@@ -123,17 +118,17 @@ public class PsiMemberResolver implements PathVisitor {
         if (fail) {
             return null;
         }
-        return resolvingHistory.getLast().getMember();
+        return resolvedHistory.getLast().getMember();
     }
 
     /**
      * Return last resolved type or root class type if nothing was resolved.
      */
     public PsiType getLastResolvedType() {
-        if (resolvingHistory.isEmpty()) {
+        if (resolvedHistory.isEmpty()) {
             return rootClassType;
         }
-        return resolvingHistory.getLast().getType();
+        return resolvedHistory.getLast().getType();
     }
 
     /**

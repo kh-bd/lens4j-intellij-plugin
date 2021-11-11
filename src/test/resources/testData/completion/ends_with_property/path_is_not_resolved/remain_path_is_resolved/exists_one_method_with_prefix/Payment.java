@@ -1,4 +1,4 @@
-package completion.ends_with_property.path_is_not_resolved.remain_path_is_resolved.exists_fields_with_prefix;
+package completion.ends_with_property.path_is_not_resolved.remain_path_is_resolved.exists_one_method_with_prefix;
 
 import completion.BasePayment;
 import dev.khbd.lens4j.core.annotations.GenLenses;
@@ -10,7 +10,7 @@ public class Payment extends BasePayment {
 }
 
 class Amount {
-    private Double value;
-    private String valueStr;
-    private String valueFull;
+    Double value() {
+        return 1.1;
+    }
 }
