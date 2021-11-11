@@ -23,6 +23,7 @@ import dev.khbd.lens4j.intellij.Lens4jBundle;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
 import dev.khbd.lens4j.intellij.common.path.PathService;
 import dev.khbd.lens4j.intellij.common.path.PsiMemberResolver;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -79,163 +80,149 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
                                                          List<PsiAnnotation> lenses,
                                                          InspectionManager manager,
                                                          boolean isOnTheFly) {
+        LensInspector inspector = new LensInspector(psiClass, manager, isOnTheFly);
         return lenses.stream()
-                .flatMap(lens -> checkLensAnnotation(psiClass, lens, manager, isOnTheFly).stream())
+                .flatMap(lens -> inspector.inspect(lens).stream())
                 .collect(Collectors.toList());
     }
 
-    private List<ProblemDescriptor> checkLensAnnotation(PsiClass psiClass,
-                                                        PsiAnnotation lens,
-                                                        InspectionManager manager,
-                                                        boolean isOnTheFly) {
-        PsiAnnotationMemberValue pathMember = lens.findAttributeValue("path");
-        // Lens#path can be null, if user has not completed typing yet.
-        if (Objects.isNull(pathMember)) {
-            return List.of();
-        }
+    @RequiredArgsConstructor
+    private static class LensInspector {
+        final PsiClass psiClass;
+        final InspectionManager manager;
+        final boolean isOnTheFly;
 
-        PsiLiteralValue literalValue = (PsiLiteralValue) pathMember;
-
-        return LensPsiUtil.getStringValue(literalValue)
-                .flatMap(checkLensPathF(manager, psiClass, lens, literalValue, isOnTheFly))
-                .stream()
-                .collect(Collectors.toList());
-    }
-
-    private Function<String, Optional<ProblemDescriptor>> checkLensPathF(InspectionManager manager,
-                                                                         PsiClass psiClass,
-                                                                         PsiAnnotation lens,
-                                                                         PsiLiteralValue literalValue,
-                                                                         boolean isOnTheFly) {
-        return pathStr -> {
-            if (pathStr.isBlank()) {
-                return Optional.of(pathIsBlankProblem(manager, literalValue, isOnTheFly));
+        List<ProblemDescriptor> inspect(PsiAnnotation lens) {
+            PsiAnnotationMemberValue pathMember = lens.findAttributeValue("path");
+            // Lens#path can be null, if user has not completed typing yet.
+            if (Objects.isNull(pathMember)) {
+                return List.of();
             }
-            return checkNotBlankPath(manager, psiClass, lens, literalValue, pathStr, isOnTheFly);
-        };
-    }
 
-    private Optional<ProblemDescriptor> checkNotBlankPath(InspectionManager manager,
-                                                          PsiClass psiClass,
-                                                          PsiAnnotation lens,
-                                                          PsiLiteralValue literalValue,
-                                                          String pathStr,
-                                                          boolean isOnTheFly) {
-        PathParser parser = PathParser.getInstance();
-        Path path = PathService.getInstance().getCorrectPathPrefix(parser.parse(pathStr));
+            PsiLiteralValue literalValue = (PsiLiteralValue) pathMember;
 
-        PsiMemberResolver resolver = new PsiMemberResolver(psiClass);
-        path.visit(resolver);
-
-        if (resolver.isResolved()) {
-            return checkResolvedPath(lens, path, literalValue, manager, isOnTheFly);
+            return LensPsiUtil.getStringValue(literalValue)
+                    .flatMap(checkLensPathF(lens, literalValue))
+                    .stream()
+                    .collect(Collectors.toList());
         }
 
-        return deriveNotFoundProblem(resolver, literalValue, manager, isOnTheFly);
-    }
+        Function<String, Optional<ProblemDescriptor>> checkLensPathF(PsiAnnotation lens,
+                                                                     PsiLiteralValue literalValue) {
+            return pathStr -> {
+                if (pathStr.isBlank()) {
+                    return Optional.of(pathIsBlankProblem(literalValue));
+                }
+                return inspectNotBlankPath(lens, literalValue, pathStr);
+            };
+        }
 
-    private Optional<ProblemDescriptor> checkResolvedPath(PsiAnnotation lens,
-                                                          Path path,
-                                                          PsiLiteralValue literalValue,
-                                                          InspectionManager manager,
-                                                          boolean isOnTheFly) {
-        if (lensIsWrite(lens)) {
-            PathPart lastPart = path.getLastPart();
-            if (lastPart.isMethod()) {
-                return Optional.of(methodNotAllowedAtWritePosition(literalValue, (Method) lastPart, manager, isOnTheFly));
+        ProblemDescriptor pathIsBlankProblem(PsiLiteralValue literalValue) {
+            return manager.createProblemDescriptor(
+                    literalValue,
+                    Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.blank"),
+                    (LocalQuickFix) null,
+                    ProblemHighlightType.GENERIC_ERROR,
+                    isOnTheFly
+            );
+        }
+
+        Optional<ProblemDescriptor> inspectNotBlankPath(PsiAnnotation lens,
+                                                        PsiLiteralValue literalValue,
+                                                        String pathStr) {
+            PathParser parser = PathParser.getInstance();
+            Path path = PathService.getInstance().getCorrectPathPrefix(parser.parse(pathStr));
+
+            PsiMemberResolver resolver = new PsiMemberResolver(psiClass);
+            path.visit(resolver);
+
+            if (resolver.isResolved()) {
+                return checkResolvedPath(lens, path, literalValue);
             }
+
+            return deriveNotFoundProblem(resolver, literalValue);
         }
-        return Optional.empty();
-    }
 
-    private boolean lensIsWrite(PsiAnnotation lens) {
-        PsiAnnotationMemberValue typeMember = lens.findAttributeValue("type");
-        if (!(typeMember instanceof PsiReferenceExpression)) {
-            return false;
+        Optional<ProblemDescriptor> checkResolvedPath(PsiAnnotation lens,
+                                                      Path path,
+                                                      PsiLiteralValue literalValue) {
+            if (lensIsWrite(lens)) {
+                PathPart lastPart = path.getLastPart();
+                if (lastPart.isMethod()) {
+                    return Optional.of(methodNotAllowedAtWritePosition(literalValue, (Method) lastPart));
+                }
+            }
+            return Optional.empty();
         }
-        PsiReferenceExpression ref = (PsiReferenceExpression) typeMember;
-        PsiField field = (PsiField) ref.resolve();
-        if (Objects.isNull(field)) {
-            return false;
+
+        Optional<ProblemDescriptor> deriveNotFoundProblem(PsiMemberResolver resolver,
+                                                          PsiLiteralValue literalValue) {
+            PathPart part = resolver.getNonResolvedPart();
+            if (part.isProperty()) {
+                return Optional.of(propertyNotFoundProblem(literalValue, (Property) part,
+                        resolver.getLastResolvedType()));
+            }
+            if (part.isMethod()) {
+                return Optional.of(methodNotFoundProblem(literalValue, (Method) part,
+                        resolver.getLastResolvedType()));
+            }
+            return Optional.empty();
         }
-        return "READ_WRITE".equals(field.getName());
-    }
 
-    private ProblemDescriptor methodNotAllowedAtWritePosition(PsiLiteralValue literalValue,
-                                                              Method method,
-                                                              InspectionManager manager,
-                                                              boolean isOnTheFly) {
-        return manager.createProblemDescriptor(
-                literalValue,
-                PathService.getInstance().getMethodNameTextRange(method).shiftRight(1),
-                Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.method.at.write.position"),
-                ProblemHighlightType.GENERIC_ERROR,
-                isOnTheFly,
-                (LocalQuickFix) null
-        );
-    }
-
-    private Optional<ProblemDescriptor> deriveNotFoundProblem(PsiMemberResolver resolver,
-                                                              PsiLiteralValue literalValue,
-                                                              InspectionManager manager,
-                                                              boolean isOnTheFly) {
-        PathPart part = resolver.getNonResolvedPart();
-        if (part.isProperty()) {
-            return Optional.of(propertyNotFoundProblem(literalValue, (Property) part,
-                    resolver.getLastResolvedType(), manager,
-                    isOnTheFly));
+        ProblemDescriptor propertyNotFoundProblem(PsiLiteralValue literalValue,
+                                                  Property property,
+                                                  PsiType type) {
+            return manager.createProblemDescriptor(
+                    literalValue,
+                    PathService.getInstance().getPropertyNameTextRange(property).shiftRight(1),
+                    Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.property.not.exist",
+                            property.getName(), type.getPresentableText()
+                    ),
+                    ProblemHighlightType.GENERIC_ERROR,
+                    isOnTheFly,
+                    (LocalQuickFix) null
+            );
         }
-        if (part.isMethod()) {
-            return Optional.of(methodNotFoundProblem(literalValue, (Method) part,
-                    resolver.getLastResolvedType(), manager,
-                    isOnTheFly));
+
+        ProblemDescriptor methodNotFoundProblem(PsiLiteralValue literalValue,
+                                                Method method,
+                                                PsiType type) {
+            return manager.createProblemDescriptor(
+                    literalValue,
+                    PathService.getInstance().getMethodNameTextRange(method).shiftRight(1),
+                    Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.method.not.exist",
+                            method.getName(), type.getPresentableText()
+                    ),
+                    ProblemHighlightType.GENERIC_ERROR,
+                    isOnTheFly,
+                    (LocalQuickFix) null
+            );
         }
-        return Optional.empty();
+
+        ProblemDescriptor methodNotAllowedAtWritePosition(PsiLiteralValue literalValue,
+                                                          Method method) {
+            return manager.createProblemDescriptor(
+                    literalValue,
+                    PathService.getInstance().getMethodNameTextRange(method).shiftRight(1),
+                    Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.method.at.write.position"),
+                    ProblemHighlightType.GENERIC_ERROR,
+                    isOnTheFly,
+                    (LocalQuickFix) null
+            );
+        }
+
+        boolean lensIsWrite(PsiAnnotation lens) {
+            PsiAnnotationMemberValue typeMember = lens.findAttributeValue("type");
+            if (!(typeMember instanceof PsiReferenceExpression)) {
+                return false;
+            }
+            PsiReferenceExpression ref = (PsiReferenceExpression) typeMember;
+            PsiField field = (PsiField) ref.resolve();
+            if (Objects.isNull(field)) {
+                return false;
+            }
+            return "READ_WRITE".equals(field.getName());
+        }
     }
 
-    private ProblemDescriptor propertyNotFoundProblem(PsiLiteralValue literalValue,
-                                                      Property property,
-                                                      PsiType type,
-                                                      InspectionManager manager,
-                                                      boolean isOnTheFly) {
-        return manager.createProblemDescriptor(
-                literalValue,
-                PathService.getInstance().getPropertyNameTextRange(property).shiftRight(1),
-                Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.property.not.exist",
-                        property.getName(), type.getPresentableText()
-                ),
-                ProblemHighlightType.GENERIC_ERROR,
-                isOnTheFly,
-                (LocalQuickFix) null
-        );
-    }
-
-    private ProblemDescriptor methodNotFoundProblem(PsiLiteralValue literalValue,
-                                                    Method method,
-                                                    PsiType type,
-                                                    InspectionManager manager,
-                                                    boolean isOnTheFly) {
-        return manager.createProblemDescriptor(
-                literalValue,
-                PathService.getInstance().getMethodNameTextRange(method).shiftRight(1),
-                Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.method.not.exist",
-                        method.getName(), type.getPresentableText()
-                ),
-                ProblemHighlightType.GENERIC_ERROR,
-                isOnTheFly,
-                (LocalQuickFix) null
-        );
-    }
-
-    private ProblemDescriptor pathIsBlankProblem(InspectionManager manager,
-                                                 PsiLiteralValue literalValue,
-                                                 boolean isOnTheFly) {
-        return manager.createProblemDescriptor(
-                literalValue,
-                Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.blank"),
-                (LocalQuickFix) null,
-                ProblemHighlightType.GENERIC_ERROR,
-                isOnTheFly
-        );
-    }
 }
