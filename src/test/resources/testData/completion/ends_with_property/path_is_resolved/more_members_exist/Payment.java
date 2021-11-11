@@ -1,4 +1,4 @@
-package completion.ends_with_property.path_is_resolved.more_properties_exist;
+package completion.ends_with_property.path_is_resolved.more_members_exist;
 
 import completion.BasePayment;
 import dev.khbd.lens4j.core.annotations.GenLenses;
@@ -14,4 +14,8 @@ class Currency {
     private String code;
     private String code1;
     private String code2;
+
+    public String codeM() {
+        return code;
+    }
 }

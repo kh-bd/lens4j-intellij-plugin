@@ -17,6 +17,7 @@ public class Predicates {
 
     public static final Predicate<PsiMethod> APPLICABLE_METHOD = method -> !method.hasParameters()
             && !PsiType.VOID.equals(method.getReturnType())
+            && !method.isConstructor()
             && !method.getModifierList().hasExplicitModifier(PsiModifier.PRIVATE);
 
     public static Predicate<PsiMember> isStatic(boolean isStatic) {

@@ -44,19 +44,17 @@ public final class LensPsiUtil {
     }
 
     /**
-     * Resolved field class.
+     * Resolve class by type.
      *
-     * @param field field
-     * @return field class or empty
+     * @param type type
+     * @return resolved class or empty
      */
-    public static Optional<PsiClass> resolveFieldClass(PsiField field) {
-        PsiType type = field.getType();
-        if (!(type instanceof PsiClassType)) {
-            return Optional.empty();
+    public static Optional<PsiClass> resolvePsiClassByType(PsiType type) {
+        if (type instanceof PsiClassType) {
+            PsiClassType classType = (PsiClassType) type;
+            return Optional.ofNullable(classType.resolve());
         }
-
-        PsiClassType classType = (PsiClassType) field.getType();
-        return Optional.ofNullable(classType.resolve());
+        return Optional.empty();
     }
 
     /**
