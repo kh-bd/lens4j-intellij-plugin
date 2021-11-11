@@ -9,7 +9,7 @@ import lombok.Value;
 @Value
 public class Version implements Comparable<Version> {
 
-    public static final Version LATEST = Version.parse("0.1.4");
+    public static final Version LATEST = Version.parse("0.1.5");
 
     int major;
     int minor;
