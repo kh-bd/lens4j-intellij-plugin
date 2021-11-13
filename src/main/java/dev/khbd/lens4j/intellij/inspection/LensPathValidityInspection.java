@@ -11,6 +11,8 @@ import com.intellij.psi.PsiArrayInitializerMemberValue;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiLiteralValue;
+import com.intellij.psi.PsiMember;
+import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiReferenceExpression;
 import com.intellij.psi.PsiType;
 import dev.khbd.lens4j.common.Method;
@@ -137,22 +139,42 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
             path.visit(resolver);
 
             if (resolver.isResolved()) {
-                return checkResolvedPath(lens, path, literalValue);
+                return checkLastPathPart(lens, path, literalValue, resolver);
             }
 
             return deriveNotFoundProblem(resolver, literalValue);
         }
 
-        Optional<ProblemDescriptor> checkResolvedPath(PsiAnnotation lens,
+        Optional<ProblemDescriptor> checkLastPathPart(PsiAnnotation lens,
                                                       Path path,
-                                                      PsiLiteralValue literalValue) {
+                                                      PsiLiteralValue literalValue,
+                                                      PsiMemberResolver resolver) {
             if (lensIsWrite(lens)) {
                 PathPart lastPart = path.getLastPart();
                 if (lastPart.isMethod()) {
-                    return Optional.of(methodNotAllowedAtWritePosition(literalValue, (Method) lastPart));
+                    return Optional.of(methodAtWritePositionProblem(literalValue, (Method) lastPart));
+                }
+                if (lastPart.isProperty()) {
+                    return checkLastProperty(literalValue, (Property) lastPart, resolver);
                 }
             }
             return Optional.empty();
+        }
+
+        Optional<ProblemDescriptor> checkLastProperty(PsiLiteralValue literalValue,
+                                                      Property property,
+                                                      PsiMemberResolver resolver) {
+            PsiMember field = resolver.getResolvedMember();
+            if (field.getModifierList().hasExplicitModifier(PsiModifier.FINAL)) {
+                return Optional.of(finalPropertyAtWritePositionProblem(literalValue, property));
+            }
+            return Optional.empty();
+        }
+
+        ProblemDescriptor finalPropertyAtWritePositionProblem(PsiLiteralValue literalValue,
+                                                              Property property) {
+            return errorProblem(literalValue, property,
+                    Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.final.property.at.write.position"));
         }
 
         Optional<ProblemDescriptor> deriveNotFoundProblem(PsiMemberResolver resolver,
@@ -172,39 +194,32 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
         ProblemDescriptor propertyNotFoundProblem(PsiLiteralValue literalValue,
                                                   Property property,
                                                   PsiType type) {
-            return manager.createProblemDescriptor(
-                    literalValue,
-                    PathService.getInstance().getPropertyNameTextRange(property).shiftRight(1),
-                    Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.property.not.exist",
-                            property.getName(), type.getPresentableText()
-                    ),
-                    ProblemHighlightType.GENERIC_ERROR,
-                    isOnTheFly,
-                    (LocalQuickFix) null
-            );
+            String message = Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.property.not.exist",
+                    property.getName(), type.getPresentableText());
+            return errorProblem(literalValue, property, message);
         }
 
         ProblemDescriptor methodNotFoundProblem(PsiLiteralValue literalValue,
                                                 Method method,
                                                 PsiType type) {
-            return manager.createProblemDescriptor(
-                    literalValue,
-                    PathService.getInstance().getMethodNameTextRange(method).shiftRight(1),
-                    Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.method.not.exist",
-                            method.getName(), type.getPresentableText()
-                    ),
-                    ProblemHighlightType.GENERIC_ERROR,
-                    isOnTheFly,
-                    (LocalQuickFix) null
-            );
+            String message = Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.method.not.exist",
+                    method.getName(), type.getPresentableText());
+            return errorProblem(literalValue, method, message);
         }
 
-        ProblemDescriptor methodNotAllowedAtWritePosition(PsiLiteralValue literalValue,
-                                                          Method method) {
+        ProblemDescriptor methodAtWritePositionProblem(PsiLiteralValue literalValue,
+                                                       Method method) {
+            return errorProblem(literalValue, method,
+                    Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.method.at.write.position"));
+        }
+
+        ProblemDescriptor errorProblem(PsiLiteralValue literalValue,
+                                       PathPart part,
+                                       String message) {
             return manager.createProblemDescriptor(
                     literalValue,
-                    PathService.getInstance().getMethodNameTextRange(method).shiftRight(1),
-                    Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.method.at.write.position"),
+                    PathService.getInstance().getTextRange(part).shiftRight(1),
+                    message,
                     ProblemHighlightType.GENERIC_ERROR,
                     isOnTheFly,
                     (LocalQuickFix) null

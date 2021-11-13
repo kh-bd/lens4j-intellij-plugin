@@ -43,4 +43,18 @@ public class LensPathValidityInspectionTest extends BaseIntellijTest {
 
         fixture.testHighlighting(true, false, true);
     }
+
+    @Test
+    public void inspect_lestIsWriteAndFinalFieldsUsedAtLastPosition_verifyError() {
+        fixture.configureByFiles("inspection/path/final_field_at_last_position/Payment.java");
+
+        fixture.testHighlighting(true, false, true);
+    }
+
+    @Test
+    public void inspect_arrayLength_verify() {
+        fixture.configureByFiles("inspection/path/array_length/Payment.java");
+
+        fixture.testHighlighting(true, false, true);
+    }
 }
