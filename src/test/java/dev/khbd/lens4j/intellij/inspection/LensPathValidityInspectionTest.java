@@ -50,4 +50,11 @@ public class LensPathValidityInspectionTest extends BaseIntellijTest {
 
         fixture.testHighlighting(true, false, true);
     }
+
+    @Test
+    public void inspect_arrayLength_verify() {
+        fixture.configureByFiles("inspection/path/array_length/Payment.java");
+
+        fixture.testHighlighting(true, false, true);
+    }
 }

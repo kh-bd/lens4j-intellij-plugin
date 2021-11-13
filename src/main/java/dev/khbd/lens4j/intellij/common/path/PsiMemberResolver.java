@@ -1,11 +1,15 @@
 package dev.khbd.lens4j.intellij.common.path;
 
+import com.intellij.psi.PsiArrayType;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMember;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiType;
+import com.intellij.psi.impl.light.LightFieldBuilder;
+import com.intellij.psi.impl.light.LightPsiClassBuilder;
 import com.intellij.psi.util.PsiTypesUtil;
 import dev.khbd.lens4j.common.Method;
 import dev.khbd.lens4j.common.Path;
@@ -46,6 +50,27 @@ public class PsiMemberResolver implements PathVisitor {
             return;
         }
 
+        PsiType lastResolvedType = getLastResolvedType();
+        if (lastResolvedType instanceof PsiArrayType) {
+            visitArrayProperty(property);
+        } else {
+            visitClassProperty(property);
+        }
+    }
+
+    private void visitArrayProperty(Property property) {
+        if (!property.getName().equals("length")) {
+            fail(property);
+            return;
+        }
+
+        LightFieldBuilder lengthField = new LightFieldBuilder("length", PsiType.INT, getResolvedMember());
+        lengthField.setModifiers(PsiModifier.PUBLIC, PsiModifier.FINAL);
+        lengthField.setContainingClass(new LightPsiClassBuilder(getResolvedMember(), "__Array__"));
+        resolvedHistory.addLast(new ResolvedPart(property, lengthField, PsiType.INT));
+    }
+
+    private void visitClassProperty(Property property) {
         PsiClass psiClass = getLastResolvedClass();
         if (Objects.isNull(psiClass)) {
             fail(property);
