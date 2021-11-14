@@ -4,6 +4,7 @@ import com.intellij.psi.PsiArrayType;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiMember;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifier;
@@ -64,7 +65,8 @@ public class PsiMemberResolver implements PathVisitor {
             return;
         }
 
-        LightFieldBuilder lengthField = new LightFieldBuilder("length", PsiType.INT, getResolvedMember());
+        PsiManager manager = getResolvedMember().getManager();
+        LightFieldBuilder lengthField = new LightFieldBuilder(manager, "length", PsiType.INT);
         lengthField.setModifiers(PsiModifier.PUBLIC, PsiModifier.FINAL);
         lengthField.setContainingClass(new LightPsiClassBuilder(getResolvedMember(), "__Array__"));
         resolvedHistory.addLast(new ResolvedPart(property, lengthField, PsiType.INT));

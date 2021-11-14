@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.impl.light.LightFieldBuilder;
 import dev.khbd.lens4j.intellij.BaseIntellijTest;
 import org.testng.annotations.Test;
 
@@ -33,6 +34,17 @@ public class LensPathPsiReferenceProviderTest extends BaseIntellijTest {
         PsiReference ref = read(() -> fixture.getReferenceAtCaretPosition());
 
         assertThat(ref).isNull();
+    }
+
+    @Test
+    public void resolve_arrayLength_refExistsButDoNotGoAnyWhere() throws Exception {
+        fixture.configureByFiles("reference/path/correct/array_length/Payment.java",
+                "reference/path/correct/Currency.java",
+                "reference/path/correct/Account.java"
+        );
+
+        PsiElement field = read(() -> fixture.getReferenceAtCaretPositionWithAssertion().resolve());
+        assertThat(field).isNotNull().isInstanceOf(LightFieldBuilder.class);
     }
 
     @Test
