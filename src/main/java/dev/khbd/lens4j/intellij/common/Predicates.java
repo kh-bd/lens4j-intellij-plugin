@@ -7,6 +7,7 @@ import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiType;
 import lombok.experimental.UtilityClass;
 
+import java.util.Arrays;
 import java.util.function.Predicate;
 
 /**
@@ -34,5 +35,12 @@ public class Predicates {
 
     public static Predicate<PsiNamedElement> nameF(Predicate<String> nameF) {
         return named -> nameF.test(named.getName());
+    }
+
+    @SafeVarargs
+    public static <T> Predicate<? super T> and(Predicate<? super T>... predicates) {
+        return Arrays.stream(predicates)
+                .reduce((p1, p2) -> f -> p1.test(f) && p2.test(f))
+                .orElse(f -> true);
     }
 }

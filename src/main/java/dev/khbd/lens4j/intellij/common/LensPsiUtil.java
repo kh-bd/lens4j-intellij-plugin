@@ -13,18 +13,21 @@ import com.intellij.psi.PsiLiteralValue;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.util.MethodSignatureUtil;
 import com.intellij.psi.util.PsiUtil;
 import com.intellij.util.containers.JBIterable;
 import dev.khbd.lens4j.core.annotations.GenLenses;
 import dev.khbd.lens4j.core.annotations.Lens;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Sergei_Khadanovich
@@ -67,30 +70,11 @@ public final class LensPsiUtil {
     @SafeVarargs
     public static List<PsiField> findFields(PsiClass psiClass,
                                             Predicate<? super PsiField>... predicates) {
-        return findElements(psiClass, PsiClass::getAllFields, predicates);
-    }
-
-    /**
-     * Find all elements by predicates.
-     *
-     * @param psiClass   class
-     * @param predicates element predicates
-     * @return elements
-     */
-    @SafeVarargs
-    private static <M extends PsiElement> List<M> findElements(PsiClass psiClass,
-                                                               Function<? super PsiClass, M[]> extractor,
-                                                               Predicate<? super M>... predicates) {
-        Predicate<? super M> predicate =
-                Arrays.stream(predicates)
-                        .reduce((p1, p2) -> f -> p1.test(f) && p2.test(f))
-                        .orElse(f -> true);
-        M[] elements = extractor.apply(psiClass);
-        return Arrays.stream(elements)
+        Predicate<? super PsiField> predicate = Predicates.and(predicates);
+        return Arrays.stream(psiClass.getAllFields())
                 .filter(predicate)
                 .collect(Collectors.toList());
     }
-
 
     /**
      * Find field by predicates.
@@ -115,7 +99,33 @@ public final class LensPsiUtil {
     @SafeVarargs
     public static List<PsiMethod> findMethods(PsiClass psiClass,
                                               Predicate<? super PsiMethod>... predicates) {
-        return findElements(psiClass, PsiClass::getAllMethods, predicates);
+        Predicate<? super PsiMethod> predicate = Predicates.and(predicates);
+
+        PsiClass currentClass = psiClass;
+        List<PsiMethod> result = new ArrayList<>();
+        do {
+            List<PsiMethod> methods = findApplicableMethodsInClass(currentClass, predicate);
+            for (PsiMethod method : methods) {
+                if (!existWithTheSameSignature(result, method)) {
+                    result.add(method);
+                }
+            }
+            currentClass = currentClass.getSuperClass();
+        } while (Objects.nonNull(currentClass));
+
+        return result;
+    }
+
+    private static boolean existWithTheSameSignature(List<PsiMethod> methods, PsiMethod method) {
+        return methods.stream()
+                .anyMatch(m -> MethodSignatureUtil.areSignaturesEqual(m, method));
+    }
+
+    private static List<PsiMethod> findApplicableMethodsInClass(PsiClass psiClass,
+                                                                Predicate<? super PsiMethod> predicate) {
+        return Stream.of(psiClass.getMethods())
+                .filter(predicate)
+                .collect(Collectors.toList());
     }
 
     /**

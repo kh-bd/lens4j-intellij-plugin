@@ -14,6 +14,21 @@ import java.util.List;
 public class LensPathCompletionTest extends BaseIntellijTest {
 
     @Test
+    public void complete_existsDuplicateMethods_deduplicateThem() {
+        fixture.configureByFiles("completion/duplicate_methods/Payment.java");
+        fixture.complete(CompletionType.BASIC);
+
+        List<String> lookupElements = fixture.getLookupElementStrings();
+
+        assertThat(lookupElements)
+                .containsExactlyInAnyOrder("amount",
+                        "getAmount()", "clone()", "hashCode()",
+                        "toString()", "getClass()",
+                        "sum()"
+                );
+    }
+
+    @Test
     public void complete_pathIsEmpty_listAllClassFieldsAndMethods() {
         fixture.configureByFiles("completion/empty_path/Payment.java", "completion/BasePayment.java");
         fixture.complete(CompletionType.BASIC);
