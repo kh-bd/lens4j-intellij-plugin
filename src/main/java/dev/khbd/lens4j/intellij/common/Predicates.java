@@ -21,19 +21,15 @@ public class Predicates {
             && !method.isConstructor()
             && !method.getModifierList().hasExplicitModifier(PsiModifier.PRIVATE);
 
-    public static Predicate<PsiMember> isStatic(boolean isStatic) {
+    public static <M extends PsiMember> Predicate<M> isStatic(boolean isStatic) {
         return m -> isStatic == m.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
     }
 
-    public static Predicate<PsiNamedElement> nameStarts(String prefix) {
-        return nameF(name -> name.startsWith(prefix));
-    }
-
-    public static Predicate<PsiNamedElement> nameEquals(String expectedName) {
+    public static <N extends PsiNamedElement> Predicate<N> nameEquals(String expectedName) {
         return nameF(name -> name.equals(expectedName));
     }
 
-    public static Predicate<PsiNamedElement> nameF(Predicate<String> nameF) {
+    public static <N extends PsiNamedElement> Predicate<N> nameF(Predicate<String> nameF) {
         return named -> nameF.test(named.getName());
     }
 

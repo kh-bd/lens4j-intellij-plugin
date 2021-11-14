@@ -4,7 +4,9 @@ import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.psi.PsiArrayType;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiJavaToken;
 import com.intellij.psi.PsiMethod;
@@ -18,6 +20,7 @@ import dev.khbd.lens4j.intellij.common.LensPsiUtil;
 import dev.khbd.lens4j.intellij.common.Predicates;
 import dev.khbd.lens4j.intellij.common.path.PathService;
 import dev.khbd.lens4j.intellij.common.path.PsiMemberResolver;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Objects;
@@ -46,12 +49,12 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
         PsiClass enclosingClass = LensPsiUtil.findFirstEnclosingClass(token).orElse(null);
 
         if (path.isEmpty()) {
-            resultSet.addAllElements(allApplicableMembersAsVariants(enclosingClass));
+            resultSet.addAllElements(getClassVariantSource(enclosingClass).getVariantsList());
             return;
         }
 
         if (isSingleProperty(path)) {
-            resultSet.addAllElements(allApplicableMembersStartedWithAsVariants(enclosingClass, pathStr));
+            resultSet.addAllElements(getClassVariantSource(enclosingClass).prefixed(pathStr).getVariantsList());
             return;
         }
 
@@ -63,8 +66,7 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
         // path is 'p1.'
         if (lastPart.isPoint() && resolver.isResolved()) {
             PsiType type = resolver.getLastResolvedType();
-            LensPsiUtil.resolvePsiClassByType(type)
-                    .ifPresent(psiClass -> resultSet.addAllElements(allApplicableMembersAsVariants(psiClass)));
+            resultSet.addAllElements(getVariantSourceByType(type).getVariantsList());
             return;
         }
 
@@ -77,68 +79,102 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
             subPath.visit(subPathResolver);
 
             if (subPathResolver.isResolved()) {
-                resultSet.addAllElements(getApplicableMembersByType(subPathResolver.getLastResolvedType(), property.getName()));
+                VariantSource source = getVariantSourceByType(subPathResolver.getLastResolvedType())
+                        .prefixed(property.getName());
+                resultSet.addAllElements(source.getVariantsList());
             }
         }
-    }
-
-    private List<LookupElementBuilder> getApplicableMembersByType(PsiType type, String prefix) {
-        PsiClass psiClass = LensPsiUtil.resolvePsiClassByType(type).orElse(null);
-        if (Objects.isNull(psiClass)) {
-            return List.of();
-        }
-        return allApplicableMembersStartedWithAsVariants(psiClass, prefix);
-    }
-
-    private List<LookupElementBuilder> allApplicableMembersAsVariants(PsiClass enclosingClass) {
-        return Stream.concat(
-                allFieldsAsVariants(enclosingClass),
-                allMethodsAsVariants(enclosingClass)
-        ).collect(Collectors.toList());
-    }
-
-    private Stream<LookupElementBuilder> allFieldsAsVariants(PsiClass enclosingClass) {
-        return LensPsiUtil.findFields(enclosingClass, Predicates.isStatic(false))
-                .stream()
-                .map(this::toLookupBuilder);
-    }
-
-    private Stream<LookupElementBuilder> allMethodsAsVariants(PsiClass enclosingClass) {
-        return LensPsiUtil.findMethods(enclosingClass, Predicates.isStatic(false), Predicates.APPLICABLE_METHOD)
-                .stream()
-                .map(this::toLookupBuilder);
-    }
-
-    private List<LookupElementBuilder> allApplicableMembersStartedWithAsVariants(PsiClass enclosingClass,
-                                                                                 String prefix) {
-        return Stream.concat(
-                allFieldsStartsWithAsVariants(enclosingClass, prefix),
-                allMethodsStartedWithAsVariants(enclosingClass, prefix)
-        ).collect(Collectors.toList());
-    }
-
-    private Stream<LookupElementBuilder> allFieldsStartsWithAsVariants(PsiClass enclosingClass, String prefix) {
-        return LensPsiUtil.findFields(enclosingClass, Predicates.isStatic(false), Predicates.nameStarts(prefix))
-                .stream()
-                .map(this::toLookupBuilder);
-    }
-
-    private Stream<LookupElementBuilder> allMethodsStartedWithAsVariants(PsiClass enclosingClass, String prefix) {
-        return LensPsiUtil.findMethods(enclosingClass, Predicates.isStatic(false),
-                        Predicates.APPLICABLE_METHOD, Predicates.nameStarts(prefix))
-                .stream()
-                .map(this::toLookupBuilder);
-    }
-
-    private LookupElementBuilder toLookupBuilder(PsiField field) {
-        return LookupElementBuilder.createWithSmartPointer(field.getName(), field);
-    }
-
-    private LookupElementBuilder toLookupBuilder(PsiMethod method) {
-        return LookupElementBuilder.createWithSmartPointer(method.getName() + "()", method);
     }
 
     private boolean isSingleProperty(Path path) {
         return path.length() == 1;
     }
+
+    private VariantSource getClassVariantSource(PsiClass psiClass) {
+        return new ClassFieldsVariantSource(psiClass)
+                .with(new ClassMethodsVariantSource(psiClass));
+    }
+
+    private VariantSource getVariantSourceByType(PsiType type) {
+        if (type instanceof PsiClassType) {
+            PsiClassType classType = (PsiClassType) type;
+            PsiClass psiClass = classType.resolve();
+            if (Objects.isNull(psiClass)) {
+                return new EmptyVariantSource();
+            }
+            return getClassVariantSource(psiClass);
+        }
+        if (type instanceof PsiArrayType) {
+            return new ArrayVariantSource();
+        }
+        return new EmptyVariantSource();
+    }
+
+    private interface VariantSource {
+        Stream<LookupElementBuilder> getVariants();
+
+        default List<LookupElementBuilder> getVariantsList() {
+            return getVariants().collect(Collectors.toList());
+        }
+
+        default VariantSource prefixed(String prefix) {
+            return () -> getVariants()
+                    .filter(variant -> variant.getLookupString().startsWith(prefix));
+        }
+
+        default VariantSource with(VariantSource other) {
+            return () -> Stream.concat(getVariants(), other.getVariants());
+        }
+    }
+
+    @RequiredArgsConstructor
+    private static class ClassFieldsVariantSource implements VariantSource {
+
+        private final PsiClass psiClass;
+
+        @Override
+        public Stream<LookupElementBuilder> getVariants() {
+            return LensPsiUtil.findFields(psiClass, Predicates.isStatic(false))
+                    .stream()
+                    .map(this::toLookupBuilder);
+        }
+
+        private LookupElementBuilder toLookupBuilder(PsiField field) {
+            return LookupElementBuilder.createWithSmartPointer(field.getName(), field);
+        }
+    }
+
+    @RequiredArgsConstructor
+    private static class ClassMethodsVariantSource implements VariantSource {
+
+        private final PsiClass psiClass;
+
+        @Override
+        public Stream<LookupElementBuilder> getVariants() {
+            return LensPsiUtil.findMethods(psiClass, Predicates.isStatic(false),
+                            Predicates.APPLICABLE_METHOD)
+                    .stream()
+                    .map(this::toLookupBuilder);
+        }
+
+        private LookupElementBuilder toLookupBuilder(PsiMethod method) {
+            return LookupElementBuilder.createWithSmartPointer(method.getName() + "()", method);
+        }
+    }
+
+    private static class ArrayVariantSource implements VariantSource {
+        @Override
+        public Stream<LookupElementBuilder> getVariants() {
+            return Stream.of(LookupElementBuilder.create("length"));
+        }
+    }
+
+    private static class EmptyVariantSource implements VariantSource {
+
+        @Override
+        public Stream<LookupElementBuilder> getVariants() {
+            return Stream.empty();
+        }
+    }
+
 }

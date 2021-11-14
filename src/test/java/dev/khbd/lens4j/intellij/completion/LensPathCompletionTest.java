@@ -14,6 +14,39 @@ import java.util.List;
 public class LensPathCompletionTest extends BaseIntellijTest {
 
     @Test
+    public void complete_lastTypeIsArrayAndNotLengthPrefixWasType_nothingToComplete() {
+        fixture.configureByFiles("completion/ends_with_point/path_valid/prev_type_is_array/wrong_prefix/Payment.java",
+                "completion/Account.java");
+        fixture.complete(CompletionType.BASIC);
+
+        List<String> lookupElements = fixture.getLookupElementStrings();
+
+        assertThat(lookupElements).isEmpty();
+    }
+
+    @Test
+    public void complete_lastTypeIsArrayAndLensPrefixWasTyped_autoCompleteWithLength() {
+        fixture.configureByFiles("completion/ends_with_point/path_valid/prev_type_is_array/length_prefix/Payment.java",
+                "completion/Account.java");
+        fixture.complete(CompletionType.BASIC);
+
+        List<String> lookupElements = fixture.getLookupElementStrings();
+
+        assertThat(lookupElements).isNull();
+    }
+
+    @Test
+    public void complete_lastTypeIsArrayAndNothingWasTyped_autoCompleteWithLength() {
+        fixture.configureByFiles("completion/ends_with_point/path_valid/prev_type_is_array/empty_prefix/Payment.java",
+                "completion/Account.java");
+        fixture.complete(CompletionType.BASIC);
+
+        List<String> lookupElements = fixture.getLookupElementStrings();
+
+        assertThat(lookupElements).containsExactlyInAnyOrder("length");
+    }
+
+    @Test
     public void complete_existsDuplicateMethods_deduplicateThem() {
         fixture.configureByFiles("completion/duplicate_methods/Payment.java");
         fixture.complete(CompletionType.BASIC);
