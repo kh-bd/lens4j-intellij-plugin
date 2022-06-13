@@ -1,7 +1,7 @@
 # Lens4j support for IntelliJ IDEA
 
 This plugin provides some convenient features for projects which use
-[Lens4j]("https://github.com/KhadanovichSergey/lens4j") library.
+[Lens4j]("https://github.com/kh-bd/lens4j") library.
 
 ## Main features:
 
