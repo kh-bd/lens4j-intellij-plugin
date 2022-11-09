@@ -45,6 +45,11 @@
 
         <notificationGroup id="Lens4j plugin" displayType="BALLOON"/>
 
+        <intentionAction id="RegenerateLensFactoryIntention">
+            <className>dev.khbd.lens4j.intellij.intention.RegenerateLensFactoryIntention</className>
+            <category>Lens4j</category>
+        </intentionAction>
+
     </extensions>
 
 </idea-plugin>

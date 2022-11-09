@@ -1,0 +1,4 @@
+@GenLenses(lenses = @Lens(path = "name"))
+public class Entity {
+    String name;
+}

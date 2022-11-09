@@ -1,0 +1,10 @@
+@GenLenses(lenses = @Lens(path = "name"))
+public class Entity {
+    String name;
+}
+
+@Generated("path to processor")
+public class EntityLenses {
+    public static final ReadLens<Entity, String> NAME_LENS =
+        Lenses.readLens(Entity::getName);
+}
