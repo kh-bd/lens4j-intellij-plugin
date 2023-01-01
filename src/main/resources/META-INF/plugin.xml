@@ -5,7 +5,7 @@
 
     <description>Plugin to add more convenient support for lens4j library</description>
 
-    <depends>com.intellij.java</depends>
+    <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <localInspection
