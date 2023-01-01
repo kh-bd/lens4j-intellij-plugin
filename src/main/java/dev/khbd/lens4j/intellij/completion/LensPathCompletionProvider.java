@@ -22,6 +22,7 @@ import dev.khbd.lens4j.intellij.common.path.PathService;
 import dev.khbd.lens4j.intellij.common.path.PsiMemberResolver;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -49,12 +50,12 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
         PsiClass enclosingClass = LensPsiUtil.findFirstEnclosingClass(token).orElse(null);
 
         if (path.isEmpty()) {
-            resultSet.addAllElements(getClassVariantSource(enclosingClass).getVariantsList());
+            resultSet.addAllElements(getClassVariantSource(enclosingClass).getVariants());
             return;
         }
 
         if (isSingleProperty(path)) {
-            resultSet.addAllElements(getClassVariantSource(enclosingClass).prefixed(pathStr).getVariantsList());
+            resultSet.addAllElements(getClassVariantSource(enclosingClass).prefixed(pathStr).getVariants());
             return;
         }
 
@@ -66,7 +67,7 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
         // path is 'p1.'
         if (lastPart.isPoint() && resolver.isResolved()) {
             PsiType type = resolver.getLastResolvedType();
-            resultSet.addAllElements(getVariantSourceByType(type).getVariantsList());
+            resultSet.addAllElements(getVariantSourceByType(type).getVariants());
             return;
         }
 
@@ -81,7 +82,7 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
             if (subPathResolver.isResolved()) {
                 VariantSource source = getVariantSourceByType(subPathResolver.getLastResolvedType())
                         .prefixed(property.getName());
-                resultSet.addAllElements(source.getVariantsList());
+                resultSet.addAllElements(source.getVariants());
             }
         }
     }
@@ -110,33 +111,44 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
         return new EmptyVariantSource();
     }
 
-    private interface VariantSource {
-        Stream<LookupElementBuilder> getVariants();
+    static abstract class VariantSource {
 
-        default List<LookupElementBuilder> getVariantsList() {
-            return getVariants().collect(Collectors.toList());
+        abstract List<LookupElementBuilder> getVariants();
+
+        VariantSource prefixed(String prefix) {
+            return new VariantSource() {
+                @Override
+                List<LookupElementBuilder> getVariants() {
+                    return VariantSource.this.getVariants().stream()
+                            .filter(variant -> variant.getLookupString().startsWith(prefix))
+                            .collect(Collectors.toList());
+                }
+            };
         }
 
-        default VariantSource prefixed(String prefix) {
-            return () -> getVariants()
-                    .filter(variant -> variant.getLookupString().startsWith(prefix));
-        }
-
-        default VariantSource with(VariantSource other) {
-            return () -> Stream.concat(getVariants(), other.getVariants());
+        VariantSource with(VariantSource other) {
+            return new VariantSource() {
+                @Override
+                List<LookupElementBuilder> getVariants() {
+                    return Stream.concat(VariantSource.this.getVariants().stream(),
+                            other.getVariants().stream()
+                    ).collect(Collectors.toList());
+                }
+            };
         }
     }
 
     @RequiredArgsConstructor
-    private static class ClassFieldsVariantSource implements VariantSource {
+    static class ClassFieldsVariantSource extends VariantSource {
 
         private final PsiClass psiClass;
 
         @Override
-        public Stream<LookupElementBuilder> getVariants() {
+        public List<LookupElementBuilder> getVariants() {
             return LensPsiUtil.findFields(psiClass, Predicates.isStatic(false))
                     .stream()
-                    .map(this::toLookupBuilder);
+                    .map(this::toLookupBuilder)
+                    .collect(Collectors.toList());
         }
 
         private LookupElementBuilder toLookupBuilder(PsiField field) {
@@ -145,16 +157,17 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
     }
 
     @RequiredArgsConstructor
-    private static class ClassMethodsVariantSource implements VariantSource {
+    static class ClassMethodsVariantSource extends VariantSource {
 
         private final PsiClass psiClass;
 
         @Override
-        public Stream<LookupElementBuilder> getVariants() {
+        public List<LookupElementBuilder> getVariants() {
             return LensPsiUtil.findMethods(psiClass, Predicates.isStatic(false),
                             Predicates.APPLICABLE_METHOD)
                     .stream()
-                    .map(this::toLookupBuilder);
+                    .map(this::toLookupBuilder)
+                    .collect(Collectors.toList());
         }
 
         private LookupElementBuilder toLookupBuilder(PsiMethod method) {
@@ -162,18 +175,18 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
         }
     }
 
-    private static class ArrayVariantSource implements VariantSource {
+    static class ArrayVariantSource extends VariantSource {
         @Override
-        public Stream<LookupElementBuilder> getVariants() {
-            return Stream.of(LookupElementBuilder.create("length"));
+        public List<LookupElementBuilder> getVariants() {
+            return List.of(LookupElementBuilder.create("length"));
         }
     }
 
-    private static class EmptyVariantSource implements VariantSource {
+    static class EmptyVariantSource extends VariantSource {
 
         @Override
-        public Stream<LookupElementBuilder> getVariants() {
-            return Stream.empty();
+        public List<LookupElementBuilder> getVariants() {
+            return Collections.emptyList();
         }
     }
 
