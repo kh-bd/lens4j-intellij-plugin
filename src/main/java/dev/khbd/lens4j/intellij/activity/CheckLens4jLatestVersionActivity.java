@@ -1,7 +1,7 @@
 package dev.khbd.lens4j.intellij.activity;
 
+import com.intellij.notification.BrowseNotificationAction;
 import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.module.Module;
@@ -46,8 +46,7 @@ public class CheckLens4jLatestVersionActivity implements StartupActivity.DumbAwa
 
     private void warnAboutStaleVersion(Project project, List<Module> modules, Version version) {
         List<String> names = modules.stream().map(Module::getName).collect(Collectors.toList());
-        Notification notification = Lens4jNotificationGroup
-                .getInstance()
+        Notification notification = Lens4jNotificationGroup.getInstance()
                 .createNotification(
                         Lens4jBundle.getMessage("activity.check.version.title"),
                         Lens4jBundle.getMessage("activity.check.version.message",
@@ -56,9 +55,12 @@ public class CheckLens4jLatestVersionActivity implements StartupActivity.DumbAwa
                                 version,
                                 Version.LATEST
                         ),
-                        NotificationType.WARNING,
-                        NotificationListener.URL_OPENING_LISTENER
+                        NotificationType.WARNING
                 );
+        notification.addAction(new BrowseNotificationAction(
+                Lens4jBundle.getMessage("activity.check.version.action"),
+                Lens4jBundle.getMessage("activity.check.version.action.url", Version.LATEST)
+        ));
         Notifications.Bus.notify(notification, project);
     }
 
