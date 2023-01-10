@@ -22,8 +22,11 @@ public class RegenerateLensFactoryIntention extends Intention {
     @Override
     protected void processIntention(PsiElement element) {
         PsiFile file = element.getContainingFile();
-        CompilerManager manager = CompilerManager.getInstance(element.getProject());
-        manager.compile(new VirtualFile[]{file.getVirtualFile()}, null);
+        VirtualFile virtualFile = file.getVirtualFile();
+        if (virtualFile != null) {
+            CompilerManager manager = CompilerManager.getInstance(element.getProject());
+            manager.compile(new VirtualFile[]{virtualFile}, null);
+        }
     }
 
     @Override
