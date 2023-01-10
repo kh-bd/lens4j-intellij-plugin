@@ -7,7 +7,6 @@ import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiAnnotationMemberValue;
-import com.intellij.psi.PsiArrayInitializerMemberValue;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiLiteralValue;
@@ -20,14 +19,12 @@ import dev.khbd.lens4j.common.Path;
 import dev.khbd.lens4j.common.PathParser;
 import dev.khbd.lens4j.common.PathPart;
 import dev.khbd.lens4j.common.Property;
-import dev.khbd.lens4j.core.annotations.GenLenses;
 import dev.khbd.lens4j.intellij.Lens4jBundle;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
 import dev.khbd.lens4j.intellij.common.path.PathService;
 import dev.khbd.lens4j.intellij.common.path.PsiMemberResolver;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -41,41 +38,15 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
 
     @Override
     public ProblemDescriptor[] checkClass(PsiClass psiClass, InspectionManager manager, boolean isOnTheFly) {
-        if (psiClass.isInterface()) {
+        List<PsiAnnotation> lenses = LensPsiUtil.lenses(psiClass);
+
+        if (lenses.isEmpty()) {
             return ProblemDescriptor.EMPTY_ARRAY;
         }
 
-        List<PsiAnnotation> lenses = findLensAnnotations(psiClass);
 
         return checkLensAnnotations(psiClass, lenses, manager, isOnTheFly)
                 .toArray(ProblemDescriptor[]::new);
-    }
-
-    private List<PsiAnnotation> findLensAnnotations(PsiClass psiClass) {
-        PsiAnnotation genLens = psiClass.getAnnotation(GenLenses.class.getName());
-        if (Objects.isNull(genLens)) {
-            return List.of();
-        }
-
-        return findLensAnnotations(genLens);
-    }
-
-    private List<PsiAnnotation> findLensAnnotations(PsiAnnotation genLens) {
-        PsiAnnotationMemberValue lenses = genLens.findAttributeValue("lenses");
-
-        if (lenses instanceof PsiAnnotation) {
-            return List.of((PsiAnnotation) lenses);
-        }
-
-        if (lenses instanceof PsiArrayInitializerMemberValue) {
-            PsiArrayInitializerMemberValue initializerMemberValue = (PsiArrayInitializerMemberValue) lenses;
-            PsiAnnotationMemberValue[] initializers = initializerMemberValue.getInitializers();
-            return Arrays.stream(initializers)
-                    .map(PsiAnnotation.class::cast)
-                    .collect(Collectors.toList());
-        }
-
-        return List.of();
     }
 
     private List<ProblemDescriptor> checkLensAnnotations(PsiClass psiClass,

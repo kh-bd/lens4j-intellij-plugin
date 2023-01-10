@@ -5,6 +5,9 @@ import com.intellij.patterns.ElementPattern;
 import com.intellij.patterns.PsiJavaPatterns;
 import com.intellij.patterns.StandardPatterns;
 import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiAnnotation;
+import com.intellij.psi.PsiAnnotationMemberValue;
+import com.intellij.psi.PsiArrayInitializerMemberValue;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiElement;
@@ -16,12 +19,17 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.MethodSignatureUtil;
 import com.intellij.psi.util.PsiUtil;
 import com.intellij.util.containers.JBIterable;
+import dev.khbd.lens4j.common.Path;
+import dev.khbd.lens4j.common.PathParser;
 import dev.khbd.lens4j.core.annotations.GenLenses;
 import dev.khbd.lens4j.core.annotations.Lens;
+import dev.khbd.lens4j.intellij.common.path.PathService;
+import lombok.NonNull;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -199,4 +207,71 @@ public final class LensPsiUtil {
                         parameterName
                 );
     }
+
+    /**
+     * Get {@link GenLenses} annotation from class.
+     *
+     * @param psiClass class
+     */
+    public static Optional<PsiAnnotation> genLenses(@NonNull PsiClass psiClass) {
+        if (psiClass.isInterface()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(psiClass.getAnnotation(GenLenses.class.getName()));
+    }
+
+    /**
+     * Get all declared lenses annotations from {@link GenLenses} annotation instance.
+     *
+     * @param genLenses gen lenses
+     * @return all lenses
+     */
+    public static List<PsiAnnotation> lenses(@NonNull PsiAnnotation genLenses) {
+        PsiAnnotationMemberValue lenses = genLenses.findAttributeValue("lenses");
+
+        if (lenses instanceof PsiAnnotation) {
+            return List.of((PsiAnnotation) lenses);
+        }
+
+        if (lenses instanceof PsiArrayInitializerMemberValue) {
+            PsiArrayInitializerMemberValue initializerMemberValue = (PsiArrayInitializerMemberValue) lenses;
+            PsiAnnotationMemberValue[] initializers = initializerMemberValue.getInitializers();
+            return Arrays.stream(initializers)
+                    .map(PsiAnnotation.class::cast)
+                    .collect(Collectors.toList());
+        }
+
+        return List.of();
+    }
+
+    /**
+     * Get all lenses annotation from class.
+     *
+     * @param psiClass class
+     * @return list of lenses annotations
+     */
+    public static List<PsiAnnotation> lenses(@NonNull PsiClass psiClass) {
+        return genLenses(psiClass)
+                .map(LensPsiUtil::lenses)
+                .orElseGet(Collections::emptyList);
+    }
+
+    /**
+     * Derive lens name from user defined path.
+     *
+     * @param pathStr path as string
+     * @param read    lens type
+     * @return lens name
+     */
+    public static Optional<String> deriveLensName(String pathStr, boolean read) {
+        PathService service = PathService.getInstance();
+
+        Path path = PathParser.getInstance().parse(pathStr);
+        if (service.hasCorrectStructure(path)) {
+            return Optional.of(service.deriveLensName(path, read));
+        }
+
+        return Optional.empty();
+    }
+
 }

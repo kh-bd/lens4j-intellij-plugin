@@ -1,5 +1,6 @@
 package dev.khbd.lens4j.intellij.common.path;
 
+import com.google.common.base.CaseFormat;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.util.TextRange;
@@ -221,4 +222,59 @@ public final class PathService {
         }
     }
 
+    /**
+     * Derive lens name by path.
+     *
+     * <p>Note! Path should be correct.
+     *
+     * @param path path
+     * @return derived lens name
+     * @see #hasCorrectStructure(Path)
+     */
+    public String deriveLensName(Path path, boolean read) {
+        LensNameAccumulator accumulator = new LensNameAccumulator(read);
+        path.visit(accumulator);
+        return accumulator.getLensName();
+    }
+
+    private static class LensNameAccumulator implements PathVisitor {
+
+        private final boolean read;
+        private final StringBuilder builder = new StringBuilder();
+
+        public LensNameAccumulator(boolean read) {
+            this.read = read;
+        }
+
+        @Override
+        public void visitProperty(Property property) {
+            visitNamed(property.getName());
+        }
+
+        @Override
+        public void visitMethod(Method method) {
+            visitNamed(method.getName());
+        }
+
+        private void visitNamed(String name) {
+            if (builder.length() != 0) {
+                builder.append("_");
+            }
+            builder.append(CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, name));
+        }
+
+        @Override
+        public void finish() {
+            builder.append("_");
+            if (read) {
+                builder.append("READ_LENS");
+            } else {
+                builder.append("READ_WRITE_LENS");
+            }
+        }
+
+        private String getLensName() {
+            return builder.toString();
+        }
+    }
 }

@@ -30,6 +30,18 @@
                 key="inspection.gen.lenses.lens.path.validity"
                 shortName="LensPathValidityInspection"
                 implementationClass="dev.khbd.lens4j.intellij.inspection.LensPathValidityInspection"/>
+        <localInspection
+                language="JAVA"
+                enabledByDefault="true"
+                level="ERROR"
+                groupBundle="dev.khbd.lens4j.intellij.messages.Lens4jBundle"
+                groupKey="inspections"
+                groupPath="Java"
+                bundle="dev.khbd.lens4j.intellij.messages.Lens4jBundle"
+                key="inspection.gen.lenses.lens.names.uniqueness"
+                shortName="DuplicateLensNamesInspection"
+                implementationClass="dev.khbd.lens4j.intellij.inspection.DuplicateLensNamesInspection"/>
+
 
         <psi.referenceContributor language="JAVA"
                                   implementation="dev.khbd.lens4j.intellij.reference.LensPsiReferenceContributor"/>
