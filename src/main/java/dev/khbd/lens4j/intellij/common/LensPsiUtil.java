@@ -20,11 +20,8 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.MethodSignatureUtil;
 import com.intellij.psi.util.PsiUtil;
 import com.intellij.util.containers.JBIterable;
-import dev.khbd.lens4j.common.Path;
-import dev.khbd.lens4j.common.PathParser;
 import dev.khbd.lens4j.core.annotations.GenLenses;
 import dev.khbd.lens4j.core.annotations.Lens;
-import dev.khbd.lens4j.intellij.common.path.PathService;
 import lombok.NonNull;
 
 import java.lang.annotation.Annotation;
@@ -255,24 +252,6 @@ public final class LensPsiUtil {
         return genLenses(psiClass)
                 .map(LensPsiUtil::lenses)
                 .orElseGet(Collections::emptyList);
-    }
-
-    /**
-     * Derive lens name from user defined path.
-     *
-     * @param pathStr path as string
-     * @param read    lens type
-     * @return lens name
-     */
-    public static Optional<String> deriveLensNameFromPath(String pathStr, boolean read) {
-        PathService service = PathService.getInstance();
-
-        Path path = PathParser.getInstance().parse(pathStr);
-        if (service.hasCorrectStructure(path)) {
-            return Optional.of(service.deriveLensNameFromPath(path, read));
-        }
-
-        return Optional.empty();
     }
 
     /**

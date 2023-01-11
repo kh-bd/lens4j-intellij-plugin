@@ -12,13 +12,13 @@ import com.intellij.psi.PsiType;
 import com.intellij.psi.impl.light.LightFieldBuilder;
 import com.intellij.psi.impl.light.LightPsiClassBuilder;
 import com.intellij.psi.util.PsiTypesUtil;
-import dev.khbd.lens4j.common.Method;
-import dev.khbd.lens4j.common.Path;
-import dev.khbd.lens4j.common.PathPart;
-import dev.khbd.lens4j.common.PathVisitor;
-import dev.khbd.lens4j.common.Property;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
 import dev.khbd.lens4j.intellij.common.Predicates;
+import dev.khbd.lens4j.intellij.common.path.grammar.Method;
+import dev.khbd.lens4j.intellij.common.path.grammar.Path;
+import dev.khbd.lens4j.intellij.common.path.grammar.PathPart;
+import dev.khbd.lens4j.intellij.common.path.grammar.PathVisitor;
+import dev.khbd.lens4j.intellij.common.path.grammar.Property;
 import lombok.Getter;
 import lombok.Value;
 
@@ -60,7 +60,7 @@ public class PsiMemberResolver implements PathVisitor {
     }
 
     private void visitArrayProperty(Property property) {
-        if (!property.getName().equals("length")) {
+        if (!property.name().equals("length")) {
             fail(property);
             return;
         }
@@ -80,7 +80,7 @@ public class PsiMemberResolver implements PathVisitor {
         }
 
         PsiField field = LensPsiUtil.findField(psiClass, Predicates.isStatic(false),
-                Predicates.nameEquals(property.getName())).orElse(null);
+                Predicates.nameEquals(property.name())).orElse(null);
 
         if (Objects.isNull(field)) {
             fail(property);
@@ -119,7 +119,7 @@ public class PsiMemberResolver implements PathVisitor {
     private PsiMethod findMethod(PsiClass psiClass, Method method) {
         return LensPsiUtil.findMethod(psiClass, Predicates.isStatic(false),
                         Predicates.APPLICABLE_METHOD,
-                        Predicates.nameEquals(method.getName()))
+                        Predicates.nameEquals(method.name()))
                 .orElse(null);
     }
 

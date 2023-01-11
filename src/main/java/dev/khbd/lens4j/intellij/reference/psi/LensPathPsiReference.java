@@ -4,9 +4,8 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
-import dev.khbd.lens4j.common.Path;
-import dev.khbd.lens4j.intellij.common.path.PathService;
 import dev.khbd.lens4j.intellij.common.path.PsiMemberResolver;
+import dev.khbd.lens4j.intellij.common.path.grammar.Path;
 
 /**
  * @author Sergei_Khadanovich
@@ -30,6 +29,6 @@ public class LensPathPsiReference extends PsiReferenceBase<PsiElement> {
     }
 
     private static TextRange getLastPartRange(Path path) {
-        return PathService.getInstance().getTextRange(path.getLastPart()).shiftRight(1);
+        return path.lastPart().textRange().shiftRight(1);
     }
 }

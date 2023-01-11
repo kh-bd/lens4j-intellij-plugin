@@ -12,15 +12,14 @@ import com.intellij.psi.PsiLiteralValue;
 import com.intellij.psi.PsiMember;
 import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiType;
-import dev.khbd.lens4j.common.Method;
-import dev.khbd.lens4j.common.Path;
-import dev.khbd.lens4j.common.PathParser;
-import dev.khbd.lens4j.common.PathPart;
-import dev.khbd.lens4j.common.Property;
 import dev.khbd.lens4j.intellij.Lens4jBundle;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
-import dev.khbd.lens4j.intellij.common.path.PathService;
 import dev.khbd.lens4j.intellij.common.path.PsiMemberResolver;
+import dev.khbd.lens4j.intellij.common.path.grammar.Method;
+import dev.khbd.lens4j.intellij.common.path.grammar.Path;
+import dev.khbd.lens4j.intellij.common.path.grammar.PathParser;
+import dev.khbd.lens4j.intellij.common.path.grammar.PathPart;
+import dev.khbd.lens4j.intellij.common.path.grammar.Property;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -101,8 +100,7 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
         Optional<ProblemDescriptor> inspectNotBlankPath(PsiAnnotation lens,
                                                         PsiLiteralValue literalValue,
                                                         String pathStr) {
-            PathParser parser = PathParser.getInstance();
-            Path path = PathService.getInstance().getCorrectPathPrefix(parser.parse(pathStr));
+            Path path = PathParser.getInstance().parse(pathStr).correctPrefix();
 
             PsiMemberResolver resolver = new PsiMemberResolver(psiClass);
             path.visit(resolver);
@@ -119,12 +117,12 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
                                                       PsiLiteralValue literalValue,
                                                       PsiMemberResolver resolver) {
             if (LensPsiUtil.isWrite(lens)) {
-                PathPart lastPart = path.getLastPart();
-                if (lastPart.isMethod()) {
-                    return Optional.of(methodAtWritePositionProblem(literalValue, (Method) lastPart));
+                PathPart lastPart = path.lastPart();
+                if (lastPart instanceof Method method) {
+                    return Optional.of(methodAtWritePositionProblem(literalValue, method));
                 }
-                if (lastPart.isProperty()) {
-                    return checkLastProperty(literalValue, (Property) lastPart, resolver);
+                if (lastPart instanceof Property property) {
+                    return checkLastProperty(literalValue, property, resolver);
                 }
             }
             return Optional.empty();
@@ -149,12 +147,12 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
         Optional<ProblemDescriptor> deriveNotFoundProblem(PsiMemberResolver resolver,
                                                           PsiLiteralValue literalValue) {
             PathPart part = resolver.getNonResolvedPart();
-            if (part.isProperty()) {
-                return Optional.of(propertyNotFoundProblem(literalValue, (Property) part,
+            if (part instanceof Property property) {
+                return Optional.of(propertyNotFoundProblem(literalValue, property,
                         resolver.getLastResolvedType()));
             }
-            if (part.isMethod()) {
-                return Optional.of(methodNotFoundProblem(literalValue, (Method) part,
+            if (part instanceof Method method) {
+                return Optional.of(methodNotFoundProblem(literalValue, method,
                         resolver.getLastResolvedType()));
             }
             return Optional.empty();
@@ -164,7 +162,7 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
                                                   Property property,
                                                   PsiType type) {
             String message = Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.property.not.exist",
-                    property.getName(), type.getPresentableText());
+                    property.name(), type.getPresentableText());
             return errorProblem(literalValue, property, message);
         }
 
@@ -172,7 +170,7 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
                                                 Method method,
                                                 PsiType type) {
             String message = Lens4jBundle.getMessage("inspection.gen.lenses.lens.path.method.not.exist",
-                    method.getName(), type.getPresentableText());
+                    method.name(), type.getPresentableText());
             return errorProblem(literalValue, method, message);
         }
 
@@ -187,7 +185,7 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
                                        String message) {
             return manager.createProblemDescriptor(
                     literalValue,
-                    PathService.getInstance().getTextRange(part).shiftRight(1),
+                    part.textRange().shiftRight(1),
                     message,
                     ProblemHighlightType.GENERIC_ERROR,
                     isOnTheFly,

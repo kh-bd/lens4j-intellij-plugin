@@ -65,6 +65,6 @@ public class PathBuilder {
      * @return path
      */
     public Path build() {
-        return new Path(parts);
+        return new Path(new ArrayList<>(parts));
     }
 }

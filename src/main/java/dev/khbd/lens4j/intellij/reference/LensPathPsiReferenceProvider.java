@@ -3,9 +3,8 @@ package dev.khbd.lens4j.intellij.reference;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import dev.khbd.lens4j.common.Path;
-import dev.khbd.lens4j.common.PathParser;
-import dev.khbd.lens4j.intellij.common.path.PathService;
+import dev.khbd.lens4j.intellij.common.path.grammar.Path;
+import dev.khbd.lens4j.intellij.common.path.grammar.PathParser;
 import dev.khbd.lens4j.intellij.reference.psi.LensPathPsiReference;
 
 /**
@@ -17,12 +16,9 @@ class LensPathPsiReferenceProvider extends AbstractNotBlankStringLiteralReferenc
     protected PsiReference[] getReferences(PsiClass enclosingClass,
                                            PsiElement originalElement,
                                            String pathStr) {
-        PathParser parser = PathParser.getInstance();
-
-        Path path = parser.parse(pathStr);
-
-        return PathService.getInstance()
-                .getCorrectPathPrefixSubPaths(path)
+        Path path = PathParser.getInstance().parse(pathStr);
+        return path.correctPrefix()
+                .subPaths()
                 .stream()
                 .map(subPath -> new LensPathPsiReference(originalElement, subPath, enclosingClass))
                 .toArray(PsiReference[]::new);

@@ -20,10 +20,8 @@ public abstract class AbstractNotBlankStringLiteralAnnotator implements Annotato
 
         PsiLiteralValue literalValue = (PsiLiteralValue) element;
         LensPsiUtil.getStringValue(literalValue)
+                .filter(str -> !str.isBlank())
                 .ifPresent(str -> {
-                    if (str.isBlank()) {
-                        return;
-                    }
                     annotateStringLiteral(str, element.getTextRange(), holder);
                 });
     }

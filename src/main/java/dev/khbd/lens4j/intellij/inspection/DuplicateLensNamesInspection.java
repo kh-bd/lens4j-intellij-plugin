@@ -11,6 +11,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiLiteralValue;
 import dev.khbd.lens4j.intellij.Lens4jBundle;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
+import dev.khbd.lens4j.intellij.common.path.DefaultLensNameDeriver;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -66,7 +67,7 @@ public class DuplicateLensNamesInspection extends AbstractBaseJavaLocalInspectio
 
                     // path was specified explicitly and contains string literal value
                     if (Objects.nonNull(path)) {
-                        String lensName = LensPsiUtil.deriveLensNameFromPath(path, LensPsiUtil.isRead(lens)).orElse(null);
+                        String lensName = DefaultLensNameDeriver.derive(path, LensPsiUtil.isRead(lens)).orElse(null);
                         if (Objects.nonNull(lensName)) {
                             if (names.contains(lensName)) {
                                 ProblemDescriptor problem = manager.createProblemDescriptor(

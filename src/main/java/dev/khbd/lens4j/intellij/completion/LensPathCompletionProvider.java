@@ -12,14 +12,14 @@ import com.intellij.psi.PsiJavaToken;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiType;
 import com.intellij.util.ProcessingContext;
-import dev.khbd.lens4j.common.Path;
-import dev.khbd.lens4j.common.PathParser;
-import dev.khbd.lens4j.common.PathPart;
-import dev.khbd.lens4j.common.Property;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
 import dev.khbd.lens4j.intellij.common.Predicates;
-import dev.khbd.lens4j.intellij.common.path.PathService;
 import dev.khbd.lens4j.intellij.common.path.PsiMemberResolver;
+import dev.khbd.lens4j.intellij.common.path.grammar.Path;
+import dev.khbd.lens4j.intellij.common.path.grammar.PathParser;
+import dev.khbd.lens4j.intellij.common.path.grammar.PathPart;
+import dev.khbd.lens4j.intellij.common.path.grammar.Point;
+import dev.khbd.lens4j.intellij.common.path.grammar.Property;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collections;
@@ -40,10 +40,9 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
         PsiJavaToken token = (PsiJavaToken) parameters.getOriginalPosition();
         String pathStr = token.getText().substring(1, token.getText().length() - 1);
 
-        PathParser parser = PathParser.getInstance();
-        Path path = parser.parse(pathStr);
+        Path path = PathParser.getInstance().parse(pathStr);
 
-        if (!PathService.getInstance().hasCorrectStructure(path)) {
+        if (!path.isStructureCorrect()) {
             return;
         }
 
@@ -62,26 +61,25 @@ public class LensPathCompletionProvider extends CompletionProvider<CompletionPar
         PsiMemberResolver resolver = new PsiMemberResolver(enclosingClass);
         path.visit(resolver);
 
-        PathPart lastPart = path.getLastPart();
+        PathPart lastPart = path.lastPart();
 
         // path is 'p1.'
-        if (lastPart.isPoint() && resolver.isResolved()) {
+        if (lastPart instanceof Point && resolver.isResolved()) {
             PsiType type = resolver.getLastResolvedType();
             resultSet.addAllElements(getVariantSourceByType(type).getVariants());
             return;
         }
 
         // path is 'p1.p2' or 'p1.p2.prefix'
-        if (lastPart.isProperty()) {
-            Property property = (Property) lastPart;
+        if (lastPart instanceof Property property) {
 
-            Path subPath = path.removeLastPart();
+            Path withoutLast = path.withoutLastPart();
             PsiMemberResolver subPathResolver = new PsiMemberResolver(enclosingClass);
-            subPath.visit(subPathResolver);
+            withoutLast.visit(subPathResolver);
 
             if (subPathResolver.isResolved()) {
                 VariantSource source = getVariantSourceByType(subPathResolver.getLastResolvedType())
-                        .prefixed(property.getName());
+                        .prefixed(property.name());
                 resultSet.addAllElements(source.getVariants());
             }
         }
