@@ -1,19 +1,13 @@
 package dev.khbd.lens4j.intellij.common;
 
 import lombok.NonNull;
-import lombok.Value;
 
 /**
  * @author Sergei_Khadanovich
  */
-@Value
-public class Version implements Comparable<Version> {
+public record Version(int major, int minor, int build) implements Comparable<Version> {
 
     public static final Version LATEST = Version.parse("0.1.9");
-
-    int major;
-    int minor;
-    int build;
 
     @Override
     public int compareTo(@NonNull Version other) {
