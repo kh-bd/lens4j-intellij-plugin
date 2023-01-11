@@ -21,7 +21,6 @@ import java.util.Set;
 /**
  * @author Sergei_Khadanovich
  */
-// todo: add description
 public class DuplicateLensNamesInspection extends AbstractBaseJavaLocalInspectionTool {
 
     @Override

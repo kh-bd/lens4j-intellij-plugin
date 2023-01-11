@@ -1,0 +1,42 @@
+<html>
+<body>
+<p>
+    This inspection reports when the lens' names are duplicated at class level.
+    <br/>
+    Lens' names represent static fields in generated factory, so they must be unique at class level.
+</p>
+<p>
+<pre><code>
+    // incorrect
+    @GenLenses(lenses = {
+        @Lens(path = "amount", lensName = "AMOUNT_LENS"),
+        @Lens(path = "amount.toString()", lensName = "AMOUNT_LENS") // duplicate lens name
+    })
+    class Payment {
+        Long amount;
+    }
+
+    // incorrect
+    @GenLenses(lenses = {
+        @Lens(path = "amount"), // lens name is derived as `AMOUNT_READ_LENS`
+        @Lens(path = "amount.toString()", lensName = "AMOUNT_READ_LENS") // duplicate lens name
+    })
+    class Payment {
+        Long amount;
+    }
+</code></pre>
+</p>
+<p>
+<pre><code>
+    // correct
+    @GenLenses(lenses = {
+        @Lens(path = "amount", lensName = "LENS_NAME"),
+        @Lens(path = "amount.toString()", lensName = "AMOUNT_AS_STRING_LENS")
+    })
+    class Payment {
+        Long amount;
+    }
+</code></pre>
+</p>
+</body>
+</html>
