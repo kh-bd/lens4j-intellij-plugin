@@ -8,11 +8,9 @@ import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiAnnotationMemberValue;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiLiteralValue;
 import com.intellij.psi.PsiMember;
 import com.intellij.psi.PsiModifier;
-import com.intellij.psi.PsiReferenceExpression;
 import com.intellij.psi.PsiType;
 import dev.khbd.lens4j.common.Method;
 import dev.khbd.lens4j.common.Path;
@@ -120,7 +118,7 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
                                                       Path path,
                                                       PsiLiteralValue literalValue,
                                                       PsiMemberResolver resolver) {
-            if (lensIsWrite(lens)) {
+            if (LensPsiUtil.isWrite(lens)) {
                 PathPart lastPart = path.getLastPart();
                 if (lastPart.isMethod()) {
                     return Optional.of(methodAtWritePositionProblem(literalValue, (Method) lastPart));
@@ -195,19 +193,6 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
                     isOnTheFly,
                     (LocalQuickFix) null
             );
-        }
-
-        boolean lensIsWrite(PsiAnnotation lens) {
-            PsiAnnotationMemberValue typeMember = lens.findAttributeValue("type");
-            if (!(typeMember instanceof PsiReferenceExpression)) {
-                return false;
-            }
-            PsiReferenceExpression ref = (PsiReferenceExpression) typeMember;
-            PsiField field = (PsiField) ref.resolve();
-            if (Objects.isNull(field)) {
-                return false;
-            }
-            return "READ_WRITE".equals(field.getName());
         }
     }
 

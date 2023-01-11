@@ -14,6 +14,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiLiteralValue;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiReferenceExpression;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.MethodSignatureUtil;
@@ -263,15 +264,43 @@ public final class LensPsiUtil {
      * @param read    lens type
      * @return lens name
      */
-    public static Optional<String> deriveLensName(String pathStr, boolean read) {
+    public static Optional<String> deriveLensNameFromPath(String pathStr, boolean read) {
         PathService service = PathService.getInstance();
 
         Path path = PathParser.getInstance().parse(pathStr);
         if (service.hasCorrectStructure(path)) {
-            return Optional.of(service.deriveLensName(path, read));
+            return Optional.of(service.deriveLensNameFromPath(path, read));
         }
 
         return Optional.empty();
     }
 
+    /**
+     * Check if lens is `write`.
+     *
+     * @param lens lens annotation
+     * @return {@literal true} if lens is `write` and {@literal false} otherwise
+     */
+    public static boolean isWrite(PsiAnnotation lens) {
+        PsiAnnotationMemberValue typeMember = lens.findAttributeValue("type");
+        if (!(typeMember instanceof PsiReferenceExpression)) {
+            return false;
+        }
+        PsiReferenceExpression ref = (PsiReferenceExpression) typeMember;
+        PsiField field = (PsiField) ref.resolve();
+        if (Objects.isNull(field)) {
+            return false;
+        }
+        return "READ_WRITE".equals(field.getName());
+    }
+
+    /**
+     * Check if lens is `read`.
+     *
+     * @param lens lens annotation
+     * @return {@literal true} if lens is read and {@literal false} otherwise
+     */
+    public static boolean isRead(PsiAnnotation lens) {
+        return !isWrite(lens);
+    }
 }

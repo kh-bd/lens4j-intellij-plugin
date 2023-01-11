@@ -231,7 +231,7 @@ public final class PathService {
      * @return derived lens name
      * @see #hasCorrectStructure(Path)
      */
-    public String deriveLensName(Path path, boolean read) {
+    public String deriveLensNameFromPath(Path path, boolean read) {
         LensNameAccumulator accumulator = new LensNameAccumulator(read);
         path.visit(accumulator);
         return accumulator.getLensName();

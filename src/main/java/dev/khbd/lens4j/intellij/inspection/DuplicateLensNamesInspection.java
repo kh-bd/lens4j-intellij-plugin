@@ -67,7 +67,7 @@ public class DuplicateLensNamesInspection extends AbstractBaseJavaLocalInspectio
 
                     // path was specified explicitly and contains string literal value
                     if (Objects.nonNull(path)) {
-                        String lensName = LensPsiUtil.deriveLensName(path, true).orElse(null);
+                        String lensName = LensPsiUtil.deriveLensNameFromPath(path, LensPsiUtil.isRead(lens)).orElse(null);
                         if (Objects.nonNull(lensName)) {
                             if (names.contains(lensName)) {
                                 ProblemDescriptor problem = manager.createProblemDescriptor(
