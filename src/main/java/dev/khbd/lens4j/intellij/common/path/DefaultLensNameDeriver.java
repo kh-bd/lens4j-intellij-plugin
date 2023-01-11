@@ -60,6 +60,8 @@ public class DefaultLensNameDeriver implements PathVisitor {
      * @param path lens path
      * @param read lens type
      * @return derived lens name
+     * @see Path#isStructureCorrect()
+     * @see Path#correctPrefix()
      */
     public static String derive(Path path, boolean read) {
         DefaultLensNameDeriver resolver = new DefaultLensNameDeriver(read);
@@ -72,7 +74,7 @@ public class DefaultLensNameDeriver implements PathVisitor {
      *
      * @param pathStr path as string
      * @param read    lens type
-     * @return derived lens name
+     * @return derived lens name or empty if path has incorrect structure
      */
     public static Optional<String> derive(String pathStr, boolean read) {
         Path path = PathParser.getInstance().parse(pathStr);
