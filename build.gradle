@@ -16,7 +16,6 @@ repositories {
 
 dependencies {
     implementation group: 'dev.khbd.lens4j', name: 'lens4j-core', version: lens4j_version
-    implementation group: 'dev.khbd.lens4j', name: 'lens4j-common', version: lens4j_version
 
     testImplementation group: 'org.testng', name: 'testng', version: '6.13.1'
     testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.9.0'
