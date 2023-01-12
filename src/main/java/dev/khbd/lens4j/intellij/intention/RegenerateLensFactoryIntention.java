@@ -54,4 +54,8 @@ public class RegenerateLensFactoryIntention extends Intention {
         return Lens4jBundle.getMessage("intention.regenerate.lens.factory");
     }
 
+    @Override
+    public boolean startInWriteAction() {
+        return false;
+    }
 }
