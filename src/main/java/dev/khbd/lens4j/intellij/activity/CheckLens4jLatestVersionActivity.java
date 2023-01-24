@@ -13,16 +13,12 @@ import com.intellij.openapi.startup.StartupActivity;
 import dev.khbd.lens4j.intellij.Lens4jBundle;
 import dev.khbd.lens4j.intellij.common.Version;
 import dev.khbd.lens4j.intellij.notification.Lens4jNotificationGroup;
-import lombok.Value;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * @author Sergei_Khadanovich
@@ -35,31 +31,26 @@ public class CheckLens4jLatestVersionActivity implements StartupActivity.DumbAwa
     public void runActivity(Project project) {
         ModuleManager moduleManager = ModuleManager.getInstance(project);
 
-        Map<Version, List<Module>> groupedByVersion =
+        boolean hasStaleVersion =
                 Arrays.stream(moduleManager.getModules())
                         .map(module -> new ModuleAndLens4j(module, findLens4jVersion(module)))
-                        .filter(ModuleAndLens4j::isPresentStaleVersion)
-                        .collect(Collectors.groupingBy(ModuleAndLens4j::getVersion, Collectors.mapping(ModuleAndLens4j::getModule, Collectors.toList())));
+                        .anyMatch(ModuleAndLens4j::isPresentStaleVersion);
 
-        groupedByVersion.forEach((version, modules) -> warnAboutStaleVersion(project, modules, version));
+        if (hasStaleVersion) {
+            warnAboutStaleVersion(project);
+        }
     }
 
-    private void warnAboutStaleVersion(Project project, List<Module> modules, Version version) {
-        List<String> names = modules.stream().map(Module::getName).collect(Collectors.toList());
+    private void warnAboutStaleVersion(Project project) {
         Notification notification = Lens4jNotificationGroup.getInstance()
                 .createNotification(
                         Lens4jBundle.getMessage("activity.check.version.title"),
-                        Lens4jBundle.getMessage("activity.check.version.message",
-                                project.getName(),
-                                names,
-                                version,
-                                Version.LATEST
-                        ),
+                        Lens4jBundle.getMessage("activity.check.version.message"),
                         NotificationType.WARNING
                 );
         notification.addAction(new BrowseNotificationAction(
                 Lens4jBundle.getMessage("activity.check.version.action"),
-                Lens4jBundle.getMessage("activity.check.version.action.url", Version.LATEST)
+                Lens4jBundle.getMessage("activity.check.version.action.url")
         ));
         Notifications.Bus.notify(notification, project);
     }
@@ -82,10 +73,7 @@ public class CheckLens4jLatestVersionActivity implements StartupActivity.DumbAwa
         return Optional.empty();
     }
 
-    @Value
-    private static class ModuleAndLens4j {
-        Module module;
-        Version version;
+    private record ModuleAndLens4j(Module module, Version version) {
 
         boolean isPresentStaleVersion() {
             return Objects.nonNull(version) && version.compareTo(Version.LATEST) < 0;
