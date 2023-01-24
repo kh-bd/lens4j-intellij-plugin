@@ -2,16 +2,25 @@ package dev.khbd.lens4j.intellij.common;
 
 import lombok.NonNull;
 
+import java.util.List;
+
 /**
  * @author Sergei_Khadanovich
  */
-public record Version(int major, int minor, int build) implements Comparable<Version> {
+public record Version(int major, int minor, int build) {
 
-    public static final Version LATEST = Version.parse("0.1.9");
+    public static final List<Version> LATEST = List.of(
+            Version.parse("0.1.9"),
+            Version.parse("0.2.1")
+    );
 
-    @Override
-    public int compareTo(@NonNull Version other) {
-        return toInt(this) - toInt(other);
+    /**
+     * Check is version latest or not.
+     *
+     * @return {@literal true} if version is latest and {@literal false} otherwise
+     */
+    public boolean isLatest() {
+        return LATEST.contains(this);
     }
 
     @Override
@@ -35,10 +44,6 @@ public record Version(int major, int minor, int build) implements Comparable<Ver
                 Integer.parseInt(parts[1]),
                 Integer.parseInt(parts[2])
         );
-    }
-
-    private static int toInt(Version version) {
-        return 100 * version.major + 10 * version.minor + version.build;
     }
 
 }

@@ -76,7 +76,7 @@ public class CheckLens4jLatestVersionActivity implements StartupActivity.DumbAwa
     private record ModuleAndLens4j(Module module, Version version) {
 
         boolean isPresentStaleVersion() {
-            return Objects.nonNull(version) && version.compareTo(Version.LATEST) < 0;
+            return Objects.nonNull(version) && !version.isLatest();
         }
 
     }
