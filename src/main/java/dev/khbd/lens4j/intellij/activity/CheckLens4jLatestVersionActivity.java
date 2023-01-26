@@ -11,7 +11,7 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.startup.StartupActivity;
 import dev.khbd.lens4j.intellij.Lens4jBundle;
-import dev.khbd.lens4j.intellij.common.Version;
+import dev.khbd.lens4j.intellij.common.version.Version;
 import dev.khbd.lens4j.intellij.notification.Lens4jNotificationGroup;
 
 import java.util.Arrays;
@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  */
 public class CheckLens4jLatestVersionActivity implements StartupActivity.DumbAware {
 
-    private static final Pattern VERSION_PATTERN = Pattern.compile("(.*:)([\\d.]+)(.*)");
+    private static final Pattern VERSION_PATTERN = Pattern.compile("(.*:)(.+)");
 
     @Override
     public void runActivity(Project project) {
@@ -68,7 +68,7 @@ public class CheckLens4jLatestVersionActivity implements StartupActivity.DumbAwa
     private Optional<Version> parseVersion(String lens4jName) {
         Matcher matcher = VERSION_PATTERN.matcher(lens4jName);
         if (matcher.matches()) {
-            return Optional.of(Version.parse(matcher.group(2)));
+            return Version.parseOptional(matcher.group(2));
         }
         return Optional.empty();
     }

@@ -1,32 +1,34 @@
-package dev.khbd.lens4j.intellij.common;
+package dev.khbd.lens4j.intellij.common.version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.Optional;
+
 /**
  * @author Sergei_Khadanovich
  */
-public class VersionTest {
+public class GenericVersionTest {
 
     @Test(expectedExceptions = NullPointerException.class)
     public void parse_argumentIsNull_throwNPE() {
-        Version.parse(null);
+        GenericVersion.parseOptional(null);
     }
 
     @Test
     public void parse_structureIsCorrect_returnParsedVersion() {
-        Version version = Version.parse("0.1.3");
+        Optional<GenericVersion> version = GenericVersion.parseOptional("0.1.3");
 
-        assertThat(version).isEqualTo(new Version(0, 1, 3));
+        assertThat(version).hasValue(new GenericVersion(0, 1, 3));
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class,
-            dataProvider = "wrongStructureDataProvider",
-            expectedExceptionsMessageRegExp = "Version has wrong structure\\. Expected structure is 'major\\.minor\\.build'")
-    public void parse_structureIsNotCorrect_throwIllegalException(String version) {
-        Version.parse(version);
+    @Test(dataProvider = "wrongStructureDataProvider")
+    public void parse_structureIsNotCorrect_throwIllegalException(String versionStr) {
+        Optional<GenericVersion> version = GenericVersion.parseOptional(versionStr);
+
+        assertThat(version).isEmpty();
     }
 
     @DataProvider
