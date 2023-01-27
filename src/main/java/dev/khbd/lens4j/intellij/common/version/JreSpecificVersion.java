@@ -1,5 +1,7 @@
 package dev.khbd.lens4j.intellij.common.version;
 
+import static dev.khbd.interp4j.core.Interpolations.s;
+
 import lombok.NonNull;
 
 import java.util.Optional;
@@ -16,7 +18,7 @@ public record JreSpecificVersion(int major, int minor, int build, String jreVers
 
     @Override
     public String toString() {
-        return major + "." + minor + "." + build + "_jre" + jreVersion;
+        return s("${major}.${minor}.${build}_jre${jreVersion}");
     }
 
     /**

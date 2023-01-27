@@ -1,5 +1,7 @@
 package dev.khbd.lens4j.intellij.common.version;
 
+import static dev.khbd.interp4j.core.Interpolations.s;
+
 import lombok.NonNull;
 
 import java.util.List;
@@ -24,7 +26,7 @@ public record GenericVersion(int major, int minor, int build) implements Version
 
     @Override
     public String toString() {
-        return major + "." + minor + "." + build;
+        return s("${major}.${minor}.${build}");
     }
 
     /**
