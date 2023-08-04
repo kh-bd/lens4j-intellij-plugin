@@ -189,7 +189,7 @@ public class LensPathValidityInspection extends AbstractBaseJavaLocalInspectionT
                     message,
                     ProblemHighlightType.GENERIC_ERROR,
                     isOnTheFly,
-                    (LocalQuickFix) null
+                    LocalQuickFix.EMPTY_ARRAY
             );
         }
     }
