@@ -4,7 +4,7 @@ import com.intellij.psi.PsiMember;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.PsiType;
+import com.intellij.psi.PsiTypes;
 import lombok.experimental.UtilityClass;
 
 import java.util.Arrays;
@@ -17,7 +17,7 @@ import java.util.function.Predicate;
 public class Predicates {
 
     public static final Predicate<PsiMethod> APPLICABLE_METHOD = method -> !method.hasParameters()
-            && !PsiType.VOID.equals(method.getReturnType())
+            && !PsiTypes.voidType().equals(method.getReturnType())
             && !method.isConstructor()
             && !method.getModifierList().hasExplicitModifier(PsiModifier.PRIVATE);
 

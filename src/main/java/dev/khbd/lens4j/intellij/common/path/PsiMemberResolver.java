@@ -9,6 +9,7 @@ import com.intellij.psi.PsiMember;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiType;
+import com.intellij.psi.PsiTypes;
 import com.intellij.psi.impl.light.LightFieldBuilder;
 import com.intellij.psi.impl.light.LightPsiClassBuilder;
 import com.intellij.psi.util.PsiTypesUtil;
@@ -20,7 +21,6 @@ import dev.khbd.lens4j.intellij.common.path.grammar.PathPart;
 import dev.khbd.lens4j.intellij.common.path.grammar.PathVisitor;
 import dev.khbd.lens4j.intellij.common.path.grammar.Property;
 import lombok.Getter;
-import lombok.Value;
 
 import java.util.LinkedList;
 import java.util.Objects;
@@ -66,10 +66,10 @@ public class PsiMemberResolver implements PathVisitor {
         }
 
         PsiManager manager = getResolvedMember().getManager();
-        LightFieldBuilder lengthField = new LightFieldBuilder(manager, "length", PsiType.INT);
+        LightFieldBuilder lengthField = new LightFieldBuilder(manager, "length", PsiTypes.intType());
         lengthField.setModifiers(PsiModifier.PUBLIC, PsiModifier.FINAL);
         lengthField.setContainingClass(new LightPsiClassBuilder(getResolvedMember(), "__Array__"));
-        resolvedHistory.addLast(new ResolvedPart(property, lengthField, PsiType.INT));
+        resolvedHistory.addLast(new ResolvedPart(property, lengthField, PsiTypes.intType()));
     }
 
     private void visitClassProperty(Property property) {
@@ -145,7 +145,7 @@ public class PsiMemberResolver implements PathVisitor {
         if (fail) {
             return null;
         }
-        return resolvedHistory.getLast().getMember();
+        return resolvedHistory.getLast().member();
     }
 
     /**
@@ -155,7 +155,7 @@ public class PsiMemberResolver implements PathVisitor {
         if (resolvedHistory.isEmpty()) {
             return rootClassType;
         }
-        return resolvedHistory.getLast().getType();
+        return resolvedHistory.getLast().type();
     }
 
     /**
@@ -171,10 +171,6 @@ public class PsiMemberResolver implements PathVisitor {
         return resolver.getResolvedMember();
     }
 
-    @Value
-    private static class ResolvedPart {
-        PathPart part;
-        PsiMember member;
-        PsiType type;
+    private record ResolvedPart(PathPart part, PsiMember member, PsiType type) {
     }
 }
