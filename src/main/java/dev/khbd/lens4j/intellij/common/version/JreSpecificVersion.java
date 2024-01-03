@@ -4,6 +4,7 @@ import static dev.khbd.interp4j.core.Interpolations.s;
 
 import lombok.NonNull;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -11,9 +12,16 @@ import java.util.Optional;
  */
 public record JreSpecificVersion(int major, int minor, int build, String jreVersion) implements Version {
 
+    private static final List<JreSpecificVersion> LATEST = List.of(
+            JreSpecificVersion.parse("1.0.0_jre1.8"),
+            JreSpecificVersion.parse("1.0.0_jre11"),
+            JreSpecificVersion.parse("1.0.0_jre17"),
+            JreSpecificVersion.parse("1.0.0_jre21")
+    );
+
     @Override
     public boolean isLatest() {
-        return false;
+        return LATEST.contains(this);
     }
 
     @Override
