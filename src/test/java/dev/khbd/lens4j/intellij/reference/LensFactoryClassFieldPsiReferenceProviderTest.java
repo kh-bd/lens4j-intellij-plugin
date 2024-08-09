@@ -9,7 +9,7 @@ import com.intellij.psi.PsiReference;
 import dev.khbd.lens4j.intellij.BaseIntellijTest;
 import dev.khbd.lens4j.intellij.common.LensPsiUtil;
 import dev.khbd.lens4j.intellij.common.Predicates;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Sergei_Khadanovich

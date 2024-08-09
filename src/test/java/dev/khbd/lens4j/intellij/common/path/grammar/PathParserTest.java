@@ -2,7 +2,7 @@ package dev.khbd.lens4j.intellij.common.path.grammar;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Sergei_Khadanovich

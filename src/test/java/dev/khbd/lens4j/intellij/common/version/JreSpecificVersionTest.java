@@ -2,9 +2,12 @@ package dev.khbd.lens4j.intellij.common.version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -12,9 +15,11 @@ import java.util.Optional;
  */
 public class JreSpecificVersionTest {
 
-    @Test(expectedExceptions = NullPointerException.class)
+    @Test
     public void parse_argumentIsNull_throwNPE() {
-        JreSpecificVersion.parseOptional(null);
+        Throwable error = Assertions.catchThrowable(() -> JreSpecificVersion.parseOptional(null));
+
+        assertThat(error).isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -24,21 +29,21 @@ public class JreSpecificVersionTest {
         assertThat(version).hasValue(new JreSpecificVersion(0, 1, 3, "11"));
     }
 
-    @Test(dataProvider = "wrongStructureDataProvider")
+    @MethodSource("wrongStructureDataProvider")
+    @ParameterizedTest
     public void parse_structureIsNotCorrect_throwIllegalException(String versionStr) {
         Optional<JreSpecificVersion> version = JreSpecificVersion.parseOptional(versionStr);
 
         assertThat(version).isEmpty();
     }
 
-    @DataProvider
-    public static Object[][] wrongStructureDataProvider() {
-        return new Object[][]{
-                {"10"},
-                {"0.1"},
-                {"0.1.2.3"},
-                {"0.1.2.3.5"},
-                {"0.1.3_jdk14"}
-        };
+    public static List<String> wrongStructureDataProvider() {
+        return List.of(
+                "10",
+                "0.1",
+                "0.1.2.3",
+                "0.1.2.3.5",
+                "0.1.3_jdk14"
+        );
     }
 }

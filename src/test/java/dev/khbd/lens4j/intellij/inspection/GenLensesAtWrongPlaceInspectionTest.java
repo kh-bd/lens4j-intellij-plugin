@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.intellij.codeInsight.intention.IntentionAction;
 import dev.khbd.lens4j.intellij.BaseIntellijTest;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -14,9 +14,8 @@ import java.util.List;
  */
 public class GenLensesAtWrongPlaceInspectionTest extends BaseIntellijTest {
 
-    @BeforeMethod
-    public void beforeMethod() throws Exception {
-        super.beforeMethod();
+    @BeforeEach
+    public void init() {
         fixture.enableInspections(GenLensesAtWrongPlaceInspection.class);
     }
 

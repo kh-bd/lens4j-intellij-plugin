@@ -13,8 +13,8 @@ import com.intellij.testFramework.fixtures.JavaTestFixtureFactory;
 import com.intellij.testFramework.fixtures.TempDirTestFixture;
 import com.intellij.testFramework.fixtures.TestFixtureBuilder;
 import com.intellij.testFramework.fixtures.impl.LightTempDirTestFixtureImpl;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -27,8 +27,8 @@ public abstract class BaseIntellijTest {
 
     protected JavaCodeInsightTestFixture fixture;
 
-    @BeforeMethod
-    public void beforeMethod() throws Exception {
+    @BeforeEach
+    public void beforeEach() throws Exception {
         IdeaTestFixtureFactory factory = IdeaTestFixtureFactory.getFixtureFactory();
         TestFixtureBuilder<IdeaProjectTestFixture> fixtureBuilder =
                 factory.createLightFixtureBuilder(getProjectDescriptor(), "lens4j");
@@ -47,8 +47,8 @@ public abstract class BaseIntellijTest {
         LensTestUtil.loadLens4jLib(fixture.getProjectDisposable(), fixture.getModule());
     }
 
-    @AfterMethod
-    public void afterMethod() throws Exception {
+    @AfterEach
+    public void afterEach() throws Exception {
         try {
             fixture.tearDown();
         } finally {

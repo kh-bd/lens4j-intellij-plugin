@@ -2,8 +2,11 @@ package dev.khbd.lens4j.intellij.common.path.grammar;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.List;
 
 /**
  * @author Sergei_Khadanovich
@@ -82,21 +85,21 @@ public class PathTest {
         assertThat(path.isStructureCorrect()).isTrue();
     }
 
-    @DataProvider
-    public static Object[][] validPathDataProvider() {
-        return new Object[][]{
-                {"pr1.pr2.pr3"},
-                {"pr1.pr2.pr3."},
-                {"pr1().pr2().pr3()"},
-                {"pr1().pr2().pr3()."},
-                {"pr1.pr2().pr3"},
-                {"pr1.pr2.pr3()"},
-                {"pr1().pr2.pr3"},
-                {"pr1().pr2.pr3."}
-        };
+    public static List<String> validPathDataProvider() {
+        return List.of(
+                "pr1.pr2.pr3",
+                "pr1.pr2.pr3.",
+                "pr1().pr2().pr3()",
+                "pr1().pr2().pr3().",
+                "pr1.pr2().pr3",
+                "pr1.pr2.pr3()",
+                "pr1().pr2.pr3",
+                "pr1().pr2.pr3."
+        );
     }
 
-    @Test(dataProvider = "validPathDataProvider")
+    @ParameterizedTest
+    @MethodSource("validPathDataProvider")
     public void correctPrefix_pathIsValid_returnTheSame(String str) {
         Path path = pathParser.parse(str);
 

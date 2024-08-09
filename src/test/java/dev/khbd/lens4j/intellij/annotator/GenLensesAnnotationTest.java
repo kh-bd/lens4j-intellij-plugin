@@ -1,7 +1,7 @@
 package dev.khbd.lens4j.intellij.annotator;
 
 import dev.khbd.lens4j.intellij.BaseIntellijTest;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Sergei_Khadanovich

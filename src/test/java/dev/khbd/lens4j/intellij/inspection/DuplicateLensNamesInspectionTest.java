@@ -1,8 +1,8 @@
 package dev.khbd.lens4j.intellij.inspection;
 
 import dev.khbd.lens4j.intellij.BaseIntellijTest;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Sergei_Khadanovich
@@ -10,10 +10,8 @@ import org.testng.annotations.Test;
 public class DuplicateLensNamesInspectionTest extends BaseIntellijTest {
 
 
-    @BeforeMethod
-    @Override
-    public void beforeMethod() throws Exception {
-        super.beforeMethod();
+    @BeforeEach
+    public void init() {
         fixture.enableInspections(DuplicateLensNamesInspection.class);
     }
 
