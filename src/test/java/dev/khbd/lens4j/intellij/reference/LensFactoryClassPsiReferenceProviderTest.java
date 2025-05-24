@@ -19,7 +19,7 @@ public class LensFactoryClassPsiReferenceProviderTest extends BaseIntellijTest {
 
         PsiElement factoryClassElement =
                 read(() -> fixture.getReferenceAtCaretPositionWithAssertion().resolve());
-        PsiClass expectedClass = read(() -> fixture.findClass("reference.factory.PaymentLenses"));
+        PsiClass expectedClass = read(() -> findClass("reference.factory.PaymentLenses"));
 
         assertThat(factoryClassElement).isNotNull()
                 .isEqualTo(expectedClass);

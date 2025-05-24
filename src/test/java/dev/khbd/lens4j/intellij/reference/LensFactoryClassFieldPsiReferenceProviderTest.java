@@ -46,7 +46,7 @@ public class LensFactoryClassFieldPsiReferenceProviderTest extends BaseIntellijT
         PsiElement lensField = read(() -> fixture.getReferenceAtCaretPositionWithAssertion().resolve());
         assertThat(lensField).isNotNull();
         PsiField expectedField = read(() -> {
-            PsiClass factoryClass = fixture.findClass("reference.factory_field.field_found.PaymentLenses");
+            PsiClass factoryClass = findClass("reference.factory_field.field_found.PaymentLenses");
             return LensPsiUtil.findField(factoryClass, Predicates.nameEquals("NAME_READ_LENS")).get();
         });
         assertThat(lensField).isEqualTo(expectedField);
@@ -60,7 +60,7 @@ public class LensFactoryClassFieldPsiReferenceProviderTest extends BaseIntellijT
         PsiElement lensField = read(() -> fixture.getReferenceAtCaretPositionWithAssertion().resolve());
         assertThat(lensField).isNotNull();
         PsiField expectedField = read(() -> {
-            PsiClass factoryClass = fixture.findClass("reference.factory_field.factory_name_empty.PaymentLenses");
+            PsiClass factoryClass = findClass("reference.factory_field.factory_name_empty.PaymentLenses");
             return LensPsiUtil.findField(factoryClass, Predicates.nameEquals("NAME_READ_LENS")).get();
         });
         assertThat(lensField).isEqualTo(expectedField);

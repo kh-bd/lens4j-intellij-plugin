@@ -56,7 +56,7 @@ public class LensPathPsiReferenceProviderTest extends BaseIntellijTest {
 
         PsiElement field = read(() -> fixture.getReferenceAtCaretPositionWithAssertion().resolve());
         PsiField expectedField = read(() -> {
-            PsiClass psiClass = fixture.findClass("reference.path.correct.AccountLensPayment");
+            PsiClass psiClass = findClass("reference.path.correct.AccountLensPayment");
             return psiClass.findFieldByName("account", false);
         });
         assertThat(field).isNotNull().isEqualTo(expectedField);
@@ -71,7 +71,7 @@ public class LensPathPsiReferenceProviderTest extends BaseIntellijTest {
 
         PsiElement field = read(() -> fixture.getReferenceAtCaretPositionWithAssertion().resolve());
         PsiField expectedField = read(() -> {
-            PsiClass psiClass = fixture.findClass("reference.path.correct.Account");
+            PsiClass psiClass = findClass("reference.path.correct.Account");
             return psiClass.findFieldByName("currency", false);
         });
         assertThat(field).isNotNull().isEqualTo(expectedField);
@@ -98,7 +98,7 @@ public class LensPathPsiReferenceProviderTest extends BaseIntellijTest {
 
         PsiElement method = read(() -> fixture.getReferenceAtCaretPositionWithAssertion().resolve());
         PsiMethod expectedMethod = read(() -> {
-            PsiClass psiClass = fixture.findClass("reference.path.correct.Account");
+            PsiClass psiClass = findClass("reference.path.correct.Account");
             return Arrays.stream(psiClass.findMethodsByName("getCurrency", true))
                     .findFirst()
                     .get();

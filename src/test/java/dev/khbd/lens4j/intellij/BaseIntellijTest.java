@@ -4,12 +4,14 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.LanguageLevelProjectExtension;
 import com.intellij.pom.java.LanguageLevel;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.testFramework.LightProjectDescriptor;
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture;
 import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
 import com.intellij.testFramework.fixtures.IdeaTestExecutionPolicy;
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
-import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture;
-import com.intellij.testFramework.fixtures.JavaTestFixtureFactory;
 import com.intellij.testFramework.fixtures.TempDirTestFixture;
 import com.intellij.testFramework.fixtures.TestFixtureBuilder;
 import com.intellij.testFramework.fixtures.impl.LightTempDirTestFixtureImpl;
@@ -25,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class BaseIntellijTest {
 
-    protected JavaCodeInsightTestFixture fixture;
+    protected CodeInsightTestFixture fixture;
 
     @BeforeEach
     public void beforeEach() throws Exception {
@@ -35,7 +37,7 @@ public abstract class BaseIntellijTest {
 
         IdeaProjectTestFixture projectFixture = fixtureBuilder.getFixture();
 
-        fixture = JavaTestFixtureFactory.getFixtureFactory()
+        fixture = IdeaTestFixtureFactory.getFixtureFactory()
                 .createCodeInsightFixture(projectFixture, getTempDirFixture());
 
         fixture.setTestDataPath(getTestDataPath());
@@ -90,5 +92,11 @@ public abstract class BaseIntellijTest {
             }
         });
         return future.get(1L, TimeUnit.SECONDS);
+    }
+
+    protected PsiClass findClass(String className) {
+        Project project = fixture.getProject();
+        JavaPsiFacade facade = JavaPsiFacade.getInstance(project);
+        return facade.findClass(className, GlobalSearchScope.allScope(project));
     }
 }
